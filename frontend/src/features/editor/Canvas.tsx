@@ -16,7 +16,11 @@ import { ClickableCard, IconAction, Text } from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
 import type { Node, Fence } from "../../domain/types";
 import { fmt } from "../../domain/evidence.js";
-import { selectedNodeIds, connectionProblem } from "../../domain/graph";
+import {
+  selectedNodeIds,
+  connectionProblem,
+  revealGraph,
+} from "../../domain/graph";
 type Point = { x: number; y: number };
 type Drag = {
   fence: Fence;
@@ -330,38 +334,30 @@ export function Canvas() {
     element.addEventListener("wheel", wheel, { passive: false });
     return () => element.removeEventListener("wheel", wheel);
   }, []);
-  // Reveal a selected node/group beside the inspector without recentering during every drag frame.
+  // Selection may open/move an overlay. Preserve the whole diagram, never move the camera mid-gesture.
   useEffect(() => {
     if (s.panel !== "inspector" || workspace.get().gestureActive) return;
-    const ids = selectedNodeIds(workspace.get().selected),
-      nodes = workspace.get().project.nodes.filter((n) => ids.includes(n.id)),
+    const current = workspace.get(),
       r = surface.current?.getBoundingClientRect();
-    if (!nodes.length || !r) return;
-    const c = workspace.get().camera,
-      minX = Math.min(...nodes.map((n) => n.x)),
-      maxX = Math.max(...nodes.map((n) => n.x + 200)),
-      minY = Math.min(...nodes.map((n) => n.y)),
-      maxY = Math.max(...nodes.map((n) => n.y + 110));
-    const left = 90,
-      right = r.width - 390,
-      top = 120,
-      bottom = r.height - 230,
-      zoom = Math.max(
-        0.25,
-        Math.min(
-          c.zoom,
-          (right - left) / (maxX - minX + 40),
-          Math.max(100, bottom - top) / (maxY - minY + 40),
-        ),
-      );
-    let x = c.x,
-      y = c.y;
-    if (minX * zoom + x < left) x = left - minX * zoom;
-    if (maxX * zoom + x > right) x = right - maxX * zoom;
-    if (minY * zoom + y < top) y = top - minY * zoom;
-    if (maxY * zoom + y > bottom) y = bottom - maxY * zoom;
-    if (x !== c.x || y !== c.y || zoom !== c.zoom)
-      workspace.set({ camera: { x, y, zoom } });
+    if (!r) return;
+    const ids = selectedNodeIds(current.selected);
+    const camera = revealGraph(
+      current.project.nodes,
+      current.camera,
+      {
+        left: 90,
+        right: r.width - (current.aiReviewOpen ? 410 : 390),
+        top: 120,
+        bottom: r.height - 230,
+      },
+      current.project.nodes.filter((n) => ids.includes(n.id)),
+    );
+    if (
+      camera.x !== current.camera.x ||
+      camera.y !== current.camera.y ||
+      camera.zoom !== current.camera.zoom
+    )
+      workspace.set({ camera });
   }, [s.selected, s.panel, s.gestureActive]);
   useEffect(() => {
     if (wire.current && s.source !== wire.current.source) cancelWire();

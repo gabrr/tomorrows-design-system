@@ -5,6 +5,7 @@ import { IconButton } from "@astryxdesign/core/IconButton";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
 import { Collapsible } from "@astryxdesign/core/Collapsible";
 import { Table } from "@astryxdesign/core/Table";
+import { proportional } from "@astryxdesign/core/Table/utils";
 import { Banner } from "@astryxdesign/core/Banner";
 export { Button, IconButton };
 export { TextInput as Input } from "@astryxdesign/core/TextInput";
@@ -159,6 +160,12 @@ export function DataGrid({
         columns={columns.map((header, i) => ({
           key: "c" + i,
           header,
+          // Astryx computes the real table minimum and its horizontal viewport
+          // from these floors. Merely making the outer wrapper scrollable lets
+          // flexible columns collapse to 60px and clips their headings.
+          width: proportional(1, {
+            minWidth: Math.max(i === 0 ? 200 : 140, header.length * 8 + 32),
+          }),
           renderCell: (row: { id: string; cells: ReactNode[] }) => row.cells[i],
         }))}
         density="compact"

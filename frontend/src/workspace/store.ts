@@ -153,6 +153,8 @@ export class Workspace {
         value,
         fence: draft?.fence || this.fence(),
       },
+      // A new pending edit supersedes an earlier success notice, but not an error.
+      ...(!this.state.notice?.error ? { notice: null } : {}),
     });
   };
   cancelBulkDraft = () => this.publish({ bulkDraft: null });

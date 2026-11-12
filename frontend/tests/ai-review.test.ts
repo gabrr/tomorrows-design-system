@@ -77,7 +77,7 @@ test("summary groups added defaults and detects changes to existing objects with
   };
   const summary = summarizeProposal(after, refined);
   assert.ok(summary.includes("Components: 1 to update (Cache)."));
-  assert.ok(summary.includes("Cache · Latency ms: unset → 12 ms."));
+  assert.ok(summary.includes("Cache · Service latency: unset → 12 ms."));
   assert.ok(
     summary.some((line) =>
       line.includes("additional property/assumption changes"),
@@ -110,11 +110,11 @@ test("summary retains connection, event, workload, monthly and name changes", ()
     monthly: { ...before.monthly, hours: 100 },
   };
   assert.deepEqual(summarizeProposal(before, after), [
-    "Connections: 1 to add (link).",
+    "Connections: 1 to add (a → b).",
     "Scenario events: 1 to add (traffic).",
     "Traffic global at 1 s → 300.",
     "Monthly hours: 730 hours/month → 100 hours/month.",
-    "Connection link · a → b.",
+    "Connection a → b.",
     "Requests per second: 100 → 200.",
     "Project name: Review fixture → Proposed name.",
   ]);
@@ -182,7 +182,7 @@ test("review exposes routing, cost and added/removed settings beyond four change
   proposal.monthly.hours = 100;
   const summary = summarizeProposal(original, proposal).join("\n");
   for (const expected of [
-    "Weight: 1 → 2",
+    "Traffic weight: 1 → 2",
     "730 hours/month → 100 hours/month",
     "Timeout: 4 → unset",
     "New timeout: unset → 8",
@@ -254,8 +254,8 @@ test("new cache/AI costs and connection constraints are visible with omitted set
   changed.edges[0].bandwidth_mbps = 50;
   delete changed.edges[0].egress_cost_per_gb;
   const edit = summarizeProposal(proposed, changed).join("\n");
-  assert.ok(edit.includes("Bandwidth mbps: 100 Mbps → 50 Mbps"));
-  assert.ok(edit.includes("Egress cost per gb: 0.09 USD/GB → unset"));
+  assert.ok(edit.includes("Bandwidth: 100 Mbps → 50 Mbps"));
+  assert.ok(edit.includes("Egress cost: 0.09 USD/GB → unset"));
 });
 
 test("endpoint and model identifier suffixes are never silently erased in review", () => {
@@ -281,4 +281,36 @@ test("endpoint and model identifier suffixes are never silently erased in review
   const summary = summarizeProposal(original, proposal).join("\n");
   assert.ok(summary.includes(`${first} → ${second}`));
   assert.ok(summary.includes(`Model: ${first} → ${second}`));
+});
+
+test("proposal summaries translate connection endpoints and delivery while complete IDs remain data", () => {
+  const original = structuredClone(before);
+  original.nodes = ["app_a", "shared_postgres"].map((id, i) => ({
+    id,
+    label: i ? "Shared PostgreSQL" : "App A",
+    type: "api_service",
+    x: i * 280,
+    y: 0,
+    config: { capacity_rps: 100, latency_ms: 10 },
+  }));
+  const next = structuredClone(original);
+  next.edges.push({
+    id: "app_a-postgres",
+    source: "app_a",
+    target: "shared_postgres",
+    latency_ms: 5,
+    weight: 1,
+    async: false,
+  });
+  const summary = summarizeProposal(original, next).join("\n");
+  assert.ok(
+    summary.includes("Connections: 1 to add (App A → Shared PostgreSQL)"),
+  );
+  assert.ok(
+    summary.includes(
+      "Network latency 5 ms; Traffic weight 1; Delivery synchronous",
+    ),
+  );
+  assert.equal(next.edges[0].id, "app_a-postgres");
+  assert.ok(!summary.includes("Async false"));
 });

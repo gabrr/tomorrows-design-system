@@ -5,6 +5,7 @@ import { workspace, useWorkspace } from "../../workspace/store";
 import { projectChanges } from "../../domain/evidence.js";
 import { Action, Area, Badge, DataGrid, Message, Text } from "../../ui";
 import type { Project } from "../../domain/types";
+import { Changes } from "./review";
 export function AgentTools() {
   const status = useSyncExternalStore(agentStatus.subscribe, agentStatus.get);
   return (
@@ -109,11 +110,7 @@ export function ArchitectureReview() {
           text="The design changed after this review was prepared. Cancel and prepare a fresh proposal."
         />
       )}
-      <ul aria-label="Reviewed architecture changes">
-        {changes.map((change, index) => (
-          <li key={index}>{change}</li>
-        ))}
-      </ul>
+      <Changes before={review.before} after={review.proposal} />
       {changes.length === 0 && <Text>No architecture changes.</Text>}
       {error && <Message error text={error} />}
       <div className="row">

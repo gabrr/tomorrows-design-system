@@ -155,6 +155,17 @@
         "sandbox": "workspace-write",
         "review": false
       }
+    },
+    "film-review": {
+      "template": "Read agents/prompts/film-review.md. Independently judge actual encoded product films as complete temporal works; establish input coverage, expose failed premises and distinguish technical, aesthetic and audio judgments. No self-approval or publication.",
+      "skills": [
+        "skills/film-review/SKILL.md",
+        "agents/prompts/film-review.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
     }
   }
 }

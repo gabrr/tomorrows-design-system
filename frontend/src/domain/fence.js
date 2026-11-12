@@ -8,6 +8,6 @@ export const sameFence = (state, fence, exact = true) =>
 export function requireFence(state, fence) {
   if (!sameFence(state, fence))
     throw new Error(
-      "Workspace changed. Request a new review for the current design.",
+      "Workspace changed. Inspect the current workspace, then retry the action with its current state.",
     );
 }

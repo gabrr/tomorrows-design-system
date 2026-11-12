@@ -1,4 +1,64 @@
 import type { Project, Selection } from "./types";
+/** Click insertion extends the selected working context downstream; explicit drops stay exact. */
+export function clickNodePosition(
+  nodes: Project["nodes"],
+  selection: Selection,
+) {
+  const selected = new Set(selectedNodeIds(selection));
+  const context = nodes.filter((n) => selected.has(n.id));
+  const anchor = context.length ? context : nodes;
+  if (!anchor.length) return { x: 200, y: 180 };
+  return freeNodePosition(nodes, {
+    x: Math.max(...anchor.map((n) => n.x)) + 280,
+    y:
+      (Math.min(...anchor.map((n) => n.y)) +
+        Math.max(...anchor.map((n) => n.y))) /
+      2,
+  });
+}
+
+/** Keep the whole local diagram beside overlays, using the smallest camera adjustment. */
+export function revealGraph(
+  nodes: Project["nodes"],
+  camera: { x: number; y: number; zoom: number },
+  area: { left: number; right: number; top: number; bottom: number },
+  focus: Project["nodes"] = [],
+) {
+  if (!nodes.length) return camera;
+  // At the supported zoom floor, a very large diagram cannot fit. Preserve
+  // access to the selected working group instead of panning it offscreen.
+  if (focus.length && focus.length < nodes.length) {
+    const width =
+      Math.max(...nodes.map((n) => n.x + 200)) -
+      Math.min(...nodes.map((n) => n.x));
+    const height =
+      Math.max(...nodes.map((n) => n.y + 110)) -
+      Math.min(...nodes.map((n) => n.y));
+    if (
+      width * 0.25 > area.right - area.left ||
+      height * 0.25 > area.bottom - area.top
+    )
+      return revealGraph(focus, camera, area);
+  }
+  const minX = Math.min(...nodes.map((n) => n.x)),
+    maxX = Math.max(...nodes.map((n) => n.x + 200)),
+    minY = Math.min(...nodes.map((n) => n.y)),
+    maxY = Math.max(...nodes.map((n) => n.y + 110));
+  const zoom = Math.max(
+    0.25,
+    Math.min(
+      camera.zoom,
+      (area.right - area.left) / (maxX - minX),
+      (area.bottom - area.top) / (maxY - minY),
+    ),
+  );
+  let { x, y } = camera;
+  if (minX * zoom + x < area.left) x = area.left - minX * zoom;
+  if (maxX * zoom + x > area.right) x = area.right - maxX * zoom;
+  if (minY * zoom + y < area.top) y = area.top - minY * zoom;
+  if (maxY * zoom + y > area.bottom) y = area.bottom - maxY * zoom;
+  return { x, y, zoom };
+}
 export function freeNodePosition(
   nodes: Project["nodes"],
   point: { x: number; y: number },

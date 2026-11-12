@@ -1,6 +1,6 @@
-# Public candidate verification scope
+# Public source verification scope
 
-This candidate derives from source `15662da`. Historical sections below describe their named revisions only. The latest repair entry distinguishes source/saved-image reviews from live browser checks and records the failed original Python discovery setup plus permitted service rerun. Local evidence is retained outside this public snapshot. No perfect, calibrated, full hardware, hosted-CI, creative-film or publication approval is claimed.
+This public update includes the approved product changes from source `fb97881`, including live-walkthrough repairs integrated at `e1ceb58`. Historical sections and named CI/package checks apply only to their stated revisions. The new public commit receives its own unchanged hosted workflow; consult its Actions result. Private QA and production evidence is retained outside this snapshot. No universal hardware/accessibility, production calibration or launch-film approval is claimed.
 
 ## Latest continuation: direct manipulation and prelaunch package
 
@@ -141,3 +141,13 @@ Root drove these actual local-browser journeys on synthetic data: three repeated
 Physical microphone/trackpad, sustained-hover cursor behavior, assistive technology, multiple simultaneous physical pointers and exhaustive delayed-response permutations remain unverified. The pointer repairs have source review and command invariants, not a physical multi-touch claim. Hosted CI and a rebuilt clean installation of this repair revision are pending. Prior wheels/public-source candidates refer to older code and are not current release artifacts. Launch-video acceptance/publication is separate and remains open.
 
 Closure review: architecture reviewer confirmed all four targeted defects fixed in the inspected source, with no introduced critical regression identified. UX closure confirmed material edge/new-component assumptions but found silently truncated long endpoint/model identifiers; the formatter now preserves the full string and a shared-prefix identifier regression passes. This is bounded source acceptance and the listed root browser evidence, not a claim that every UX gesture is certified.
+
+## 2026-11-12 live-user walkthrough repairs
+
+Two further agents operated fresh synthetic workspaces through the actual browser and native tools. Their builder/operator reports are in `local-evidence-omitted`. These are agent-operated journeys, not human research. They found graph context obscured by inspector selection, confusing click-add placement, raw proposal labels, obsolete success notices beside pending edits, compressed result columns and insufficient native-command error feedback.
+
+The repairs preserve working graph context beside overlays, insert click-added nodes downstream of the current selection, share readable proposal summaries, distinguish network from service latency, clear earlier success notices on new group drafts, give Astryx tables real minimum column widths with horizontal scrolling, and display specific native rejection/recovery messages. Exact source hashes, original/follow-up screenshots and scope are in `local-evidence-omitted`. Root reviewed the diff and captures and verified all15 delivered file hashes. Final77frontend cases across8suites, evidence/rate/price/history boundaries, TypeScript and production build passed; no dependency change or weakened check was used.
+
+Public commit23515d1 passed browser and all four Python3.11/3.13 Ubuntu/macOS jobs in hosted run43276768302. That is evidence for the earlier public source; the live-walkthrough repair must receive its own hosted run. The earlier packaging/CI paragraphs above are historical and do not describe this newer source status. Root also exercised a real Codex3s→1s health-check proposal and Apply & simulate against a pinned browser baseline: same600requests and project,27→11failures, exact changed field verified in actual UI exports. All four exported current/previous/baseline result objects passed the shared evidence validator.
+
+Full physical input/accessibility certification, production calibration and launch-film acceptance remain open. Temporary QA/capture resources were cleaned after the local checks; no user data or unrelated service was changed.

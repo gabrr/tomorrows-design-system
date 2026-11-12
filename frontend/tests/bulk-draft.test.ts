@@ -184,3 +184,19 @@ test("actual backend validates owned draft; commit and clear publish atomically 
     globalThis.fetch = original;
   }
 });
+
+test("new bulk scratch supersedes the previous success notice without hiding an error", () => {
+  const w = setup();
+  w.cancelBulkDraft();
+  w.notify("Updated 2 components. Undo restores all previous values.");
+  w.editBulkDraft(["a", "b"], "capacity_rps", 220);
+  assert.equal(w.get().notice, null);
+  assert.equal(w.get().bulkDraft?.value, 220);
+  assert.deepEqual(
+    w.get().project.nodes.map((n) => n.config.capacity_rps),
+    [100, 200, 300],
+  );
+  w.notify("Validation failed", true);
+  w.editBulkDraft(["a", "b"], "capacity_rps", 230);
+  assert.equal(w.get().notice?.text, "Validation failed");
+});

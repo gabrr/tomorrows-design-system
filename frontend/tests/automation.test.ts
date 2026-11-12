@@ -430,3 +430,39 @@ test("cancelled native simulation cannot attach a late result or replace earlier
     globalThis.fetch = original;
   }
 });
+
+test("stale direct command reports useful visible recovery and cannot change project/history", async () => {
+  const { w, tools } = setup(),
+    old = w.fence();
+  w.edit((p) => {
+    p.name = "New revision";
+  });
+  const project = w.get().project,
+    history = w.get().history;
+  w.notify("Experiment complete. Play or scrub the timeline.");
+  const rejected = await call(tools, "add_component", {
+    type: "cache",
+    x: 600,
+    y: 0,
+    expected: old,
+  });
+  assert.equal(rejected.ok, false);
+  assert.match(rejected.error, /Workspace changed.*Inspect.*retry/);
+  assert.doesNotMatch(rejected.error, /new review/);
+  assert.match(
+    w.get().notice?.text || "",
+    /Agent action rejected.*Workspace changed/,
+  );
+  assert.equal(w.get().notice?.error, true);
+  assert.equal(w.get().project, project);
+  assert.equal(w.get().history, history);
+  const readOnly = await call(tools, "inspect_workspace");
+  const added = await call(tools, "add_component", {
+    type: "cache",
+    x: 600,
+    y: 0,
+    expected: readOnly.fence,
+  });
+  assert.equal(added.ok, true);
+  assert.equal(w.get().project.nodes.length, 3);
+});

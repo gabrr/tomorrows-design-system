@@ -18,6 +18,10 @@ export function Changes({
     <>
       <div className="proposal-summary" aria-label="Proposed change summary">
         <strong>Before → proposed</strong>
+        <p>
+          Summary of proposed changes. Expand the complete diff below for every
+          setting before applying.
+        </p>
         <ul>
           {summarizeProposal(before, after).map((line) => (
             <li key={line}>{line}</li>

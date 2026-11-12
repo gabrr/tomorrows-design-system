@@ -11,7 +11,7 @@ import {
   ModalShell,
 } from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
-import { freeNodePosition } from "../../domain/graph";
+import { clickNodePosition } from "../../domain/graph";
 export function LibraryPanel() {
   const s = useWorkspace(),
     [query, setQuery] = useState(""),
@@ -35,7 +35,9 @@ export function LibraryPanel() {
           onClick={() => workspace.set({ panel: null })}
         />
       </div>
-      <Text color="secondary">Drag a building block onto the canvas.</Text>
+      <Text color="secondary">
+        Click to add near your selection, or drag onto the canvas.
+      </Text>
       <Select
         label="Architecture preset"
         value=""
@@ -83,16 +85,12 @@ export function LibraryPanel() {
                     variant="ghost"
                     className="catalog-action"
                     onClick={() => {
-                      const { camera, project } = workspace.get();
+                      const { project, selected } = workspace.get();
                       try {
-                        const point = freeNodePosition(project.nodes, {
-                          x:
-                            (window.innerWidth / 2 - camera.x) / camera.zoom -
-                            100,
-                          y:
-                            (window.innerHeight / 2 - camera.y) / camera.zoom -
-                            50,
-                        });
+                        const point = clickNodePosition(
+                          project.nodes,
+                          selected,
+                        );
                         workspace.add(c.type, point.x, point.y);
                         queueMicrotask(() =>
                           window.dispatchEvent(new Event("tds:fit")),

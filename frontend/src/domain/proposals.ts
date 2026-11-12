@@ -22,10 +22,33 @@ export function reviewStatus(input: {
 /** Group complete objects by identity so added defaults do not become dozens of rows. */
 export function summarizeProposal(before: Project, after: Project): string[] {
   const lines: string[] = [];
-  function collection(
+  const nodeLabel = (id: unknown) =>
+    after.nodes.find((n) => n.id === id)?.label ||
+    before.nodes.find((n) => n.id === id)?.label ||
+    String(id);
+  const connectionLabel = (edge: Project["edges"][number]) =>
+    typeof edge.label === "string" && edge.label
+      ? edge.label
+      : `${nodeLabel(edge.source)} → ${nodeLabel(edge.target)}`;
+  const fieldLabel = (key: string, connection = false) =>
+    (connection && key === "latency_ms"
+      ? "Network latency"
+      : {
+          capacity_rps: "Capacity",
+          latency_ms: "Service latency",
+          async: "Delivery",
+          weight: "Traffic weight",
+          concurrency: "Concurrent requests",
+          bandwidth_mbps: "Bandwidth",
+          egress_cost_per_gb: "Egress cost",
+          payload_bytes: "Payload size",
+        }[key]) || humanize(key);
+  function collection<T extends { id: string; label?: unknown }>(
     label: string,
-    old: { id: string; label?: string }[],
-    next: { id: string; label?: string }[],
+    old: T[],
+    next: T[],
+    display: (item: T) => string = (item) =>
+      typeof item.label === "string" && item.label ? item.label : item.id,
   ) {
     const previous = new Map(old.map((item) => [item.id, item]));
     const proposed = new Map(next.map((item) => [item.id, item]));
@@ -36,14 +59,11 @@ export function summarizeProposal(before: Project, after: Project): string[] {
         previous.has(item.id) &&
         canonical(previous.get(item.id)) !== canonical(item),
     );
-    const describe = (
-      items: { id: string; label?: string }[],
-      action: string,
-    ) =>
+    const describe = (items: T[], action: string) =>
       items.length
         ? `${items.length} to ${action} (${items
             .slice(0, 3)
-            .map((item) => item.label || item.id)
+            .map(display)
             .join(", ")}${items.length > 3 ? ", …" : ""})`
         : "";
     const parts = [
@@ -54,7 +74,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
     if (parts.length) lines.push(`${label}: ${parts.join("; ")}.`);
   }
   collection("Components", before.nodes, after.nodes);
-  collection("Connections", before.edges, after.edges);
+  collection("Connections", before.edges, after.edges, connectionLabel);
   collection("Scenario events", before.scenario.events, after.scenario.events);
   const changedEvents = after.scenario.events.filter((event) => {
     const old = before.scenario.events.find((item) => item.id === event.id);
@@ -96,9 +116,15 @@ export function summarizeProposal(before: Project, after: Project): string[] {
   const describe = (value: unknown, key: string) =>
     value === undefined
       ? "unset"
-      : typeof value === "object"
-        ? JSON.stringify(value).slice(0, 100)
-        : `${String(value)}${units[key] ? " " + units[key] : ""}`;
+      : key === "async"
+        ? value
+          ? "asynchronous"
+          : "synchronous"
+        : key === "source" || key === "target"
+          ? nodeLabel(value)
+          : typeof value === "object"
+            ? JSON.stringify(value).slice(0, 100)
+            : `${String(value)}${units[key] ? " " + units[key] : ""}`;
   for (const key of ["hours", "traffic_multiplier"] as const)
     if (before.monthly[key] !== after.monthly[key])
       details.push(
@@ -116,7 +142,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
         (key) => !["id", "source", "target", "label"].includes(key),
       );
       details.push(
-        `Connection ${edge.id} · ${edge.source} → ${edge.target}${assumptions.length ? "; " + assumptions.map((key) => `${humanize(key)} ${describe(edge[key], key)}`).join("; ") : ""}.`,
+        `Connection ${connectionLabel(edge)}${assumptions.length ? "; " + assumptions.map((key) => `${fieldLabel(key, true)} ${describe(edge[key], key)}`).join("; ") : ""}.`,
       );
       continue;
     }
@@ -127,7 +153,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
         canonical(edge[key] ?? defaults[key])
       )
         details.push(
-          `Connection ${edge.id} · ${humanize(key)}: ${describe(old[key] ?? defaults[key], key)} → ${describe(edge[key] ?? defaults[key], key)}.`,
+          `Connection ${connectionLabel(edge)} · ${fieldLabel(key, true)}: ${describe(old[key] ?? defaults[key], key)} → ${describe(edge[key] ?? defaults[key], key)}.`,
         );
     }
   }
@@ -164,7 +190,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
       const displayed = main.slice(0, 10);
       if (displayed.length)
         details.push(
-          `${node.label} · proposed assumptions: ${displayed.map((key) => `${humanize(key)} ${describe(node.config[key], key)}`).join("; ")}.`,
+          `${node.label} · proposed assumptions: ${displayed.map((key) => `${fieldLabel(key)} ${describe(node.config[key], key)}`).join("; ")}.`,
         );
       const omitted = keys.length - displayed.length;
       if (omitted)
@@ -183,7 +209,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
     for (const key of keys) {
       if (canonical(old.config[key]) !== canonical(node.config[key]))
         details.push(
-          `${node.label} · ${humanize(key)}: ${describe(old.config[key], key)} → ${describe(node.config[key], key)}.`,
+          `${node.label} · ${fieldLabel(key)}: ${describe(old.config[key], key)} → ${describe(node.config[key], key)}.`,
         );
     }
   }

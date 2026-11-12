@@ -222,6 +222,11 @@ export function createAgentTools(
         };
       } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
+        if (!readOnly)
+          store.notify(
+            `Agent action rejected: ${error}${/inspect/i.test(error) ? "" : " Inspect the current workspace before retrying."}`,
+            true,
+          );
         agentStatus.record({
           name: "tds_" + name,
           label,
