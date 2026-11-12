@@ -107,6 +107,7 @@ function NodeView({
       <Tooltip
         isEnabled={!!stats}
         touchTrigger="none"
+        focusTrigger="always"
         content={
           stats
             ? `Utilization ${fmt(stats.utilization * 100, 1)}% · Queue ${stats.queue_depth}. Arrivals include rejected calls.`
