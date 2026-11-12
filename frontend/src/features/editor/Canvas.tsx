@@ -12,7 +12,13 @@ import {
   Workflow,
   ArrowRight,
 } from "lucide-react";
-import { ClickableCard, IconAction, Text, Tooltip } from "../../ui";
+import {
+  ClickableCard,
+  IconAction,
+  Text,
+  Tooltip,
+  hasVisibleTooltip,
+} from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
 import type { Node, Fence } from "../../domain/types";
 import { fmt } from "../../domain/evidence.js";
@@ -542,6 +548,7 @@ export function Canvas() {
   }
   function key(e: React.KeyboardEvent) {
     if (
+      e.defaultPrevented ||
       (e.target as HTMLElement).closest(
         "input,textarea,[role=combobox],[role=dialog]",
       )
@@ -549,6 +556,13 @@ export function Canvas() {
       return;
     const current = workspace.get();
     if (e.key === "Escape") {
+      // Tooltips consume Escape through Astryx's layer stack at document level.
+      // An idle canvas also defers so normal panel dismissal remains reachable.
+      if (
+        hasVisibleTooltip() ||
+        (!drag.current && !wire.current && !pan.current)
+      )
+        return;
       e.preventDefault();
       e.stopPropagation();
       finish(true);

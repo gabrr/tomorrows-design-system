@@ -9,6 +9,7 @@ import {
   TabList,
   Tab,
   Message,
+  hasVisibleTooltip,
 } from "./ui";
 import { neutralTheme } from "@astryxdesign/theme-neutral/built";
 import { workspace, useWorkspace } from "./workspace/store";
@@ -48,6 +49,7 @@ export function App() {
       const state = workspace.get();
       if (
         e.defaultPrevented ||
+        (e.key === "Escape" && hasVisibleTooltip()) ||
         [
           ...document.querySelectorAll<HTMLElement>(
             "dialog[open],[role=listbox],[role=menu]",

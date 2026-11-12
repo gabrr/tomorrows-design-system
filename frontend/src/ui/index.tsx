@@ -24,6 +24,14 @@ export { Theme } from "@astryxdesign/core/theme";
 export { FileInput } from "@astryxdesign/core/FileInput";
 export { ChatComposer } from "@astryxdesign/core/Chat";
 export { ToggleButton } from "@astryxdesign/core/ToggleButton";
+/** Let Astryx's document-level layer stack own Escape before workspace shortcuts. */
+export function hasVisibleTooltip() {
+  return [...document.querySelectorAll<HTMLElement>('[role="tooltip"]')].some(
+    (element) =>
+      element.getClientRects().length > 0 &&
+      getComputedStyle(element).visibility !== "hidden",
+  );
+}
 type ActionProps = Omit<
   ComponentProps<typeof Button>,
   "isDisabled" | "isLoading" | "clickAction"

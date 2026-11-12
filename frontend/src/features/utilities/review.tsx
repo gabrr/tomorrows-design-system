@@ -50,7 +50,9 @@ export function Changes({
         )}
       </div>
       {actions}
-      <Disclosure title={`Complete diff (${changes.length} ${changes.length === 1 ? "detail" : "details"})`}>
+      <Disclosure
+        title={`Complete diff (${changes.length} ${changes.length === 1 ? "detail" : "details"})`}
+      >
         <ul>
           {(changes.length
             ? changes

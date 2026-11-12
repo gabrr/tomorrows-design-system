@@ -164,6 +164,74 @@ const assert = require("node:assert/strict");
     console.log(
       "PASS direct multi-selection, batch edit, group duplicate/delete/undo and keyboard connection",
     );
+    // A focused graph card has a nested native button. Its telemetry hint must
+    // open for keyboard users, consume only the first Escape, and leave the
+    // second Escape available to close Inspector. No model/tool state injection.
+    const hints = await browser.newPage({
+      viewport: { width: 1280, height: 720 },
+      reducedMotion: "reduce",
+    });
+    hints.on("pageerror", (e) => errors.push(e.message));
+    try {
+      await hints.goto(base);
+      const appA = hints.locator('[data-node-id="app_a"]');
+      await appA.waitFor();
+      await hints
+        .getByRole("button", { name: "Run simulation", exact: true })
+        .click();
+      const time = hints.getByRole("spinbutton", {
+        name: "Selected simulated time · seconds",
+        exact: true,
+      });
+      await time.fill("25");
+      await time.press("Tab");
+      await appA.click();
+      const inspector = hints.getByRole("heading", {
+        name: "Component",
+        exact: true,
+      });
+      await inspector.waitFor();
+      await hints.mouse.move(1080, 450);
+      await hints.locator("#canvas").press("Tab");
+      let cardFocused = false;
+      for (let step = 0; step < 30; step++) {
+        cardFocused = await hints.evaluate(
+          () =>
+            document.activeElement
+              ?.closest("[data-node-id]")
+              ?.getAttribute("data-node-id") === "app_a",
+        );
+        if (cardFocused) break;
+        await hints.keyboard.press("Tab");
+      }
+      assert.equal(cardFocused, true, "Tab reaches App A's native card button");
+      const tooltip = hints.getByRole("tooltip");
+      await tooltip.waitFor({ state: "visible" });
+      assert.match(
+        await tooltip.innerText(),
+        /Arrivals include rejected calls/,
+      );
+      await hints.keyboard.press("Escape");
+      await tooltip.waitFor({ state: "hidden" });
+      assert.equal(await inspector.isVisible(), true);
+      assert.equal(
+        await hints.evaluate(
+          () =>
+            document.activeElement
+              ?.closest("[data-node-id]")
+              ?.getAttribute("data-node-id") === "app_a",
+        ),
+        true,
+        "Dismissing a hint retains card focus",
+      );
+      await hints.keyboard.press("Escape");
+      await inspector.waitFor({ state: "hidden" });
+      console.log(
+        "PASS keyboard telemetry and one-layer-at-a-time Escape from canvas",
+      );
+    } finally {
+      await hints.close();
+    }
     const native = await page.evaluate(() => {
       const context = document.modelContext || navigator.modelContext;
       return !!(
