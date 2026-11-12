@@ -359,41 +359,40 @@ export function AIWorkspace() {
                       />
                       <p className="ai-review-status">
                         {status === "pending"
-                          ? "Canvas unchanged. Apply this proposal, or send a follow-up to refine it."
+                          ? "Not applied yet."
                           : status === "applied"
-                            ? "Applied to the canvas at that time. Later edits may differ."
-                            : "Not applied. The canvas changed or a newer request replaced this proposal."}
+                            ? "Applied earlier. Later edits may differ."
+                            : "Not applied. Canvas changed or a newer request replaced it."}
                       </p>
-                      {status === "pending" && (
-                        <div className="ai-actions ai-review-actions">
-                          <Action
-                            label="Apply to canvas"
-                            disabled={
-                              busy || state.gestureActive || !!state.modal
-                            }
-                            onClick={() => void apply(entry.review!, false)}
-                          />
-                          <Action
-                            label="Apply & simulate"
-                            variant="primary"
-                            disabled={
-                              busy || state.gestureActive || !!state.modal
-                            }
-                            onClick={() => void apply(entry.review!, true)}
-                          />
-                        </div>
-                      )}
                       <Changes
                         before={entry.review.before}
                         after={entry.review.proposal}
+                        actions={
+                          status === "pending" && (
+                            <div className="ai-actions ai-review-actions">
+                              <Action
+                                label="Apply to canvas"
+                                disabled={
+                                  busy || state.gestureActive || !!state.modal
+                                }
+                                onClick={() => void apply(entry.review!, false)}
+                              />
+                              <Action
+                                label="Apply & simulate"
+                                variant="primary"
+                                disabled={
+                                  busy || state.gestureActive || !!state.modal
+                                }
+                                onClick={() => void apply(entry.review!, true)}
+                              />
+                            </div>
+                          )
+                        }
                       />
                       <Disclosure
                         title={`Notes & assumptions${entry.warnings?.length ? ` (${entry.warnings.length})` : ""}`}
                       >
-                        <p className="ai-advisory-note">
-                          AI-generated advice. The review status above describes
-                          what has been applied.
-                        </p>
+                        <p className="ai-advisory-note">AI-generated notes.</p>
                         <p>{entry.text}</p>
                         {!!entry.warnings?.length && (
                           <ul>

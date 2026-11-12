@@ -1,4 +1,102 @@
-import type { Project, Selection } from "./types";
+import type { Frame, Project, Selection } from "./types";
+
+/** Rates over two retained samples, never utilization or successful completions.
+ * received includes rejected arrivals; requests counts routed calls on an edge.
+ * A missing baseline, counter or positive interval is unavailable, not zero.
+ */
+export function sampledTraffic(
+  frames: readonly Frame[],
+  index: number,
+  fresh: boolean,
+) {
+  const frame = fresh ? frames[index] : undefined;
+  const previous = fresh && index > 0 ? frames[index - 1] : undefined;
+  const seconds = frame && previous ? frame.time - previous.time : NaN;
+  const interval =
+    frame &&
+    previous &&
+    Number.isFinite(frame.time) &&
+    Number.isFinite(previous.time) &&
+    previous.time >= 0 &&
+    Number.isFinite(seconds) &&
+    seconds > 0
+      ? { from: previous.time, to: frame.time, seconds }
+      : null;
+  const rate = (now: unknown, before: unknown): number | null => {
+    if (
+      !interval ||
+      typeof now !== "number" ||
+      typeof before !== "number" ||
+      !Number.isFinite(now) ||
+      !Number.isFinite(before) ||
+      before < 0 ||
+      now < before
+    )
+      return null;
+    const value = (now - before) / interval.seconds;
+    return Number.isFinite(value) ? value : null;
+  };
+  return {
+    frame,
+    interval,
+    nodeRates: Object.fromEntries(
+      Object.entries(frame?.nodes ?? {}).map(([id, n]) => [
+        id,
+        rate(n.received, previous?.nodes[id]?.received),
+      ]),
+    ) as Record<string, number | null>,
+    edgeRates: Object.fromEntries(
+      Object.entries(frame?.edges ?? {}).map(([id, e]) => [
+        id,
+        rate(e.requests, previous?.edges[id]?.requests),
+      ]),
+    ) as Record<string, number | null>,
+  };
+}
+
+type LabelRect = { x: number; y: number; width: number; height: number };
+const overlaps = (a: LabelRect, b: LabelRect) =>
+  a.x < b.x + b.width &&
+  a.x + a.width > b.x &&
+  a.y < b.y + b.height &&
+  a.y + a.height > b.y;
+
+/** Try nearby points on the actual connection curve; never cover cards/other labels.
+ * Returns the SVG text baseline and its reserved box, or null (node rates remain visible).
+ */
+export function connectionRatePosition(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  width: number,
+  nodes: readonly { x: number; y: number }[],
+  occupied: readonly LabelRect[] = [],
+) {
+  const bend =
+    b.x >= a.x ? (b.x - a.x) * 0.45 : Math.max(60, Math.abs(b.x - a.x) * 0.45);
+  for (const t of [0.5, 0.35, 0.65]) {
+    const u = 1 - t;
+    const x =
+      u ** 3 * a.x +
+      3 * u ** 2 * t * (a.x + bend) +
+      3 * u * t ** 2 * (b.x - bend) +
+      t ** 3 * b.x;
+    const y =
+      u ** 3 * a.y + 3 * u ** 2 * t * a.y + 3 * u * t ** 2 * b.y + t ** 3 * b.y;
+    for (const offset of [-8, -24, 22]) {
+      const baseline = y + offset;
+      const rect = { x: x - width / 2, y: baseline - 13, width, height: 18 };
+      if (
+        nodes.some((n) =>
+          overlaps(rect, { x: n.x - 8, y: n.y - 8, width: 216, height: 126 }),
+        ) ||
+        occupied.some((r) => overlaps(rect, r))
+      )
+        continue;
+      return { x, y: baseline, rect };
+    }
+  }
+  return null;
+}
 /** Click insertion extends the selected working context downstream; explicit drops stay exact. */
 export function clickNodePosition(
   nodes: Project["nodes"],

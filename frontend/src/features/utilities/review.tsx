@@ -1,36 +1,56 @@
 import { Link } from "@astryxdesign/core/Link";
+import type { ReactNode } from "react";
 import type { Project } from "../../domain/types";
 import { projectChanges } from "../../domain/evidence.js";
-import { Disclosure } from "../../ui";
-import { summarizeProposal } from "../../domain/proposals";
+import { Disclosure, Text } from "../../ui";
+import { proposalSummaryGroups } from "../../domain/proposals";
 export const errorText = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 export { guard, validateProposal } from "./review-logic";
 export function Changes({
   before,
   after,
+  actions,
 }: {
   before: Project;
   after: Project;
+  actions?: ReactNode;
 }) {
   const changes = projectChanges(before, after) as string[];
+  const summary = proposalSummaryGroups(before, after);
+  const primary = summary.changes.length ? summary.changes : summary.inventory;
   return (
     <>
       <div className="proposal-summary" aria-label="Proposed change summary">
-        <strong>Before → proposed</strong>
-        <p>
-          Summary of proposed changes. Expand the complete diff below for every
-          setting before applying.
-        </p>
-        <ul>
-          {summarizeProposal(before, after).map((line) => (
-            <li key={line}>{line}</li>
+        <strong>Proposed changes</strong>
+        <ul
+          className="proposal-changes"
+          role="list"
+          aria-label="Change details"
+        >
+          {(primary.length
+            ? primary
+            : ["No architecture, scenario or monthly assumption changes."]
+          ).map((line) => (
+            <li key={line}>
+              <Text weight="semibold">{line}</Text>
+            </li>
           ))}
         </ul>
+        {summary.changes.length > 0 && summary.inventory.length > 0 && (
+          <ul aria-label="Affected items">
+            {summary.inventory.map((line) => (
+              <li key={line}>
+                <Text type="supporting" color="secondary">
+                  {line}
+                </Text>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      <Disclosure
-        title={`Complete before/after diff (${changes.length} details)`}
-      >
+      {actions}
+      <Disclosure title={`Complete diff (${changes.length} details)`}>
         <ul>
           {(changes.length
             ? changes
@@ -40,7 +60,7 @@ export function Changes({
           ))}
         </ul>
       </Disclosure>
-      <Disclosure title="Optional complete proposal JSON">
+      <Disclosure title="Complete proposal JSON">
         <pre>{JSON.stringify(after, null, 2)}</pre>
       </Disclosure>
     </>

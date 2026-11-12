@@ -31,6 +31,9 @@ from .validation import task_limit_errors
 STATES = ('proposed', 'ready', 'running', 'review', 'verified', 'integrated',
           'failed', 'blocked', 'cancelled')
 MAX_OUTPUT = 2 * 1024 * 1024
+MAX_SNAPSHOT_FILES = 5000
+MAX_SNAPSHOT_FILE_BYTES = 16 * 1024 * 1024
+MAX_SNAPSHOT_BYTES = 128 * 1024 * 1024
 
 
 class FactoryError(RuntimeError):
@@ -397,12 +400,63 @@ class Factory:
     def worktree(self, path, revision):
         git(self.root, 'worktree', 'add', '--detach', str(path), revision)
 
+    def snapshot_inputs(self, workspace, env, admitted=()):
+        """Metadata-only accident guard; never hash or stage candidate payloads."""
+        names = set(admitted)
+        for entry in git(workspace, 'ls-files', '--stage', '-z', env=env).split(b'\0'):
+            if not entry:
+                continue
+            mode, name = entry.split(b'\t', 1)
+            if mode.split(b' ', 1)[0] not in (b'100644', b'100755'):
+                raise FactoryError('Snapshot rejects symlinks and submodules before staging')
+            names.add(name.decode('utf-8'))
+        names.update(n.decode('utf-8').rstrip('/') for n in git(
+            workspace, 'ls-files', '--others', '--exclude-standard', '-z', env=env).split(b'\0') if n)
+        if len(names) > MAX_SNAPSHOT_FILES:
+            raise FactoryError(f'Snapshot file-count budget exceeded: {len(names)} > {MAX_SNAPSHOT_FILES}')
+        metadata = {}
+        total = 0
+        for name in sorted(names):
+            relative_path(name)
+            path = Path(workspace) / name
+            # A replaced parent must not let lstat follow a symlink out of root.
+            for parent in reversed(path.relative_to(workspace).parents):
+                if parent == Path('.'):
+                    continue
+                ancestor = Path(workspace) / parent
+                if ancestor.is_symlink() or (ancestor / '.git').exists():
+                    raise FactoryError('Snapshot rejects symlink/nested repository: ' + name[:200])
+            try:
+                info = path.lstat()
+            except FileNotFoundError:
+                metadata[name] = None  # Tracked deletion remains in the admitted plan.
+                continue
+            if not stat.S_ISREG(info.st_mode):
+                raise FactoryError('Snapshot rejects nested repository or special file: ' + name[:200])
+            if info.st_size > MAX_SNAPSHOT_FILE_BYTES:
+                raise FactoryError(f'Snapshot per-file byte budget exceeded: {name[:200]} ({info.st_size} > {MAX_SNAPSHOT_FILE_BYTES})')
+            total += info.st_size
+            if total > MAX_SNAPSHOT_BYTES:
+                raise FactoryError(f'Snapshot total byte budget exceeded: {total} > {MAX_SNAPSHOT_BYTES}; at {name[:200]}')
+            metadata[name] = (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+                              info.st_mtime_ns, info.st_ctime_ns)
+        return metadata
+
     def snapshot_patch(self, workspace, revision, index_path):
         env = os.environ.copy()
         env['GIT_INDEX_FILE'] = str(index_path)
         git(workspace, 'read-tree', revision, env=env)
-        git(workspace, 'add', '-A', '--', '.', env=env)
-        # Fail closed on special file modes (symlink/submodule).
+        admitted = self.snapshot_inputs(workspace, env)
+        if self.snapshot_inputs(workspace, env, admitted) != admitted:
+            raise FactoryError('Snapshot inputs changed before staging; retry explicitly')
+        if admitted:
+            # Literal, NUL-delimited paths handle spaces, newlines and pathspec syntax.
+            paths = b''.join(name.encode('utf-8') + b'\0' for name in admitted)
+            git(workspace, '--literal-pathspecs', 'add', '-A', '--pathspec-from-file=-',
+                '--pathspec-file-nul', env=env, input=paths)
+        if self.snapshot_inputs(workspace, env, admitted) != admitted:
+            raise FactoryError('Snapshot inputs changed during staging; retry explicitly')
+        # Retain the post-staging mode check as defense in depth.
         for entry in git(workspace, 'ls-files', '--stage', '-z', env=env).split(b'\0'):
             if entry and entry.split(b' ', 1)[0] not in (b'100644', b'100755'):
                 raise FactoryError('Symlinks and submodules are not supported')
@@ -417,11 +471,20 @@ class Factory:
                 raise FactoryError('Out-of-scope change: ' + name)
 
     def prompt(self, task):
+        context = dict(task['context'])
+        hashes = context.pop('input_hashes', None)
+        if hashes is not None:
+            context['input_manifest'] = {
+                'path': '../context.json', 'field': 'input_hashes',
+                'sha256': digest(encoded(hashes).encode('utf-8')), 'count': len(hashes),
+                'encoding': 'UTF-8 JSON, sorted keys, compact separators',
+            }
         return ('Approved role template:\n' + task['context']['role_template']['template'] +
                 '\nAct as worker ' + task['actor'] + '. Do not approve your own work. No commits.\n'
                 'Never use native subagents, side chat APIs, external messaging, cloud deployment, or change user configuration/credentials.\n'
                 'Only edit these scope entries (trailing / denotes subtree): ' + encoded(task['scope']) +
-                '\nRead pinned context files: ' + encoded(task['context']) +
+                '\nRead the pinned contract and skill files identified in this context envelope: ' + encoded(context) +
+                '\ninput_manifest is audit metadata, not required bulk reading. Consult only relevant entries when needed; never bulk-load the full input_hashes map. ' +
                 '\nAcceptance: ' + task['acceptance'] + '\nTrusted checks: ' + encoded(task['checks']) +
                 '\nTask ' + task['id'] + ':\n' + task['prompt'] +
                 ('\nUnaccepted work from a prior attempt has been restored as repair input. Preserve working parts, correct the previous error and review/coordinator findings, and complete missing evidence; independent acceptance is still required.' if task.get('repair_artifact') else '') +
@@ -608,7 +671,7 @@ class Factory:
                 if digest(repair_patch) != repair['sha256']:
                     raise FactoryError('Rejected artifact changed before repair')
                 self.validate_scope(repair['files'], task['scope'])
-                git(workspace, 'add', '-A', '--', '.')
+                git(workspace, 'read-tree', task['baseline_tree'])
                 if repair_patch:
                     git(workspace, 'apply', '--3way', '--binary', '-', input=repair_patch)
                 atomic_json(attempt_dir / 'repair-input.json', {'patch': repair['patch'], 'sha256': repair['sha256']})

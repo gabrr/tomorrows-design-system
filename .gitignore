@@ -21,3 +21,26 @@ artifacts/ui-resume.json
 
 artifacts/ui-tests/
 artifacts/astryx-build-meta.json
+
+# Retained evidence and generated film assets are explicit task inputs.
+/artifacts/
+/output/
+/marketing/launch/video/**/evidence/
+/marketing/launch/video/**/frames*/
+/marketing/launch/video/**/encoded*/
+/marketing/launch/relaunch/production/**/frames*/
+/marketing/launch/relaunch/production/**/encoded*/
+/marketing/launch/relaunch/production/**/review-package/
+/marketing/launch/relaunch/production/**/product-snapshot/
+/marketing/launch/relaunch/review/
+# Private film exports/reference media are explicit task inputs, not ambient code context.
+/marketing/launch/video/**/*.mp4
+/marketing/launch/video/**/*.webm
+/marketing/launch/video/**/*.wav
+/marketing/launch/relaunch/production/**/*.mp4
+/marketing/launch/relaunch/production/**/*.webm
+/marketing/launch/relaunch/production/**/*.wav
+
+# Generated preview bundles and production evidence metadata.
+/marketing/launch/relaunch/production/**/public/
+/marketing/launch/relaunch/production/**/evidence/

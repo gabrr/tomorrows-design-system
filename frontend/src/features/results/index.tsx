@@ -40,6 +40,7 @@ export function ResultsPanel() {
   ];
   return (
     <div className="stack results-panel">
+      <Text type="label">Whole-run results · 0–{run.duration}s</Text>
       <div className="row spread">
         <Text type="label">
           {s.baseline ? "Pinned baseline" : "Comparison with last run"}

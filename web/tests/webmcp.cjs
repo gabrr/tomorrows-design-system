@@ -41,9 +41,7 @@ const assert = require("node:assert/strict");
       .innerText();
     assert.match(summary, /App A · Capacity: 100 req\/s → 300 req\/s/);
     assert.match(summary, /App B · Capacity: 100 req\/s → 300 req\/s/);
-    await review
-      .getByRole("button", { name: /Complete before\/after diff/ })
-      .waitFor();
+    await review.getByRole("button", { name: /Complete diff/ }).waitFor();
     assert.equal(
       await page
         .locator('[data-node-id="app_a"]')

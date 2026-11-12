@@ -3,10 +3,13 @@ import { Play, Pause, SkipBack, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, IconAction, Slider, Select, Numeric, Text } from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
 import { fmt } from "../../domain/evidence.js";
+import { sampledTraffic } from "../../domain/graph";
 export function Playback() {
   const s = useWorkspace(),
     frames = s.run?.frames || [],
-    frame = frames[s.frame];
+    frame = frames[s.frame],
+    fresh = s.runRevision === s.revision,
+    sample = sampledTraffic(frames, s.frame, fresh).interval;
   useEffect(() => {
     if (!s.playing || !s.run) return;
     let last = performance.now(),
@@ -68,8 +71,16 @@ export function Playback() {
         />
         <div className="playback-time">
           <Text>
-            {s.runRevision === s.revision ? "Time" : "Previous run"}{" "}
-            {fmt(frame?.time ?? 0)} / {s.run.duration}s
+            {fresh ? "Replay" : "Previous run"}{" "}
+            {s.playing ? "playing" : "paused"} · {fmt(frame?.time ?? 0)} /{" "}
+            {s.run.duration}s
+          </Text>
+          <Text type="supporting">
+            {!fresh
+              ? "Graph rates unavailable · rerun required"
+              : sample
+                ? `Rates: ${fmt(sample.from, 3)}–${fmt(sample.to, 3)}s sample`
+                : "Rates unavailable · no prior interval"}
           </Text>
         </div>
         <div className="playback-range">

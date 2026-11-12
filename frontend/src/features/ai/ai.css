@@ -110,6 +110,10 @@
   padding-left: 18px;
   line-height: 1.5;
 }
+.proposal-summary .proposal-changes {
+  padding-left: 0;
+  list-style: none;
+}
 .ai-entry > .app-disclosure {
   margin-block: 8px;
 }

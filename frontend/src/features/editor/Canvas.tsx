@@ -12,7 +12,7 @@ import {
   Workflow,
   ArrowRight,
 } from "lucide-react";
-import { ClickableCard, IconAction, Text } from "../../ui";
+import { ClickableCard, IconAction, Text, Tooltip } from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
 import type { Node, Fence } from "../../domain/types";
 import { fmt } from "../../domain/evidence.js";
@@ -20,6 +20,8 @@ import {
   selectedNodeIds,
   connectionProblem,
   revealGraph,
+  sampledTraffic,
+  connectionRatePosition,
 } from "../../domain/graph";
 type Point = { x: number; y: number };
 type Drag = {
@@ -62,6 +64,8 @@ function NodeView({
   source,
   target,
   stats,
+  telemetry,
+  arrivalRate,
   onChoose,
   onStart,
   onMove,
@@ -80,6 +84,8 @@ function NodeView({
   source: boolean;
   target: boolean;
   stats?: { state: string; utilization: number; queue_depth: number };
+  telemetry: boolean;
+  arrivalRate: number | null;
   onChoose: (e: RMouseEvent) => void;
   onStart: (e: RPointerEvent<HTMLElement>) => void;
   onMove: (e: RPointerEvent<HTMLElement>) => void;
@@ -98,42 +104,58 @@ function NodeView({
       className={`diagram-node-shell ${selected ? "is-selected" : ""} ${source ? "is-source" : ""} ${target ? "is-target" : ""}`}
       style={{ left: point.x, top: point.y }}
     >
-      <ClickableCard
-        data-node-id={node.id}
-        data-connection-target={node.id}
-        data-ui-host={host}
-        label={`${node.label}, ${node.type}${selected ? ", selected" : ""}${stats ? ", " + stats.state : ""}`}
-        className={`diagram-node ${selected ? "is-selected" : ""} ${source ? "is-source" : ""} ${stats?.state === "down" ? "is-down" : ""}`}
-        padding={3}
-        onClick={onChoose}
-        onPointerDown={onStart}
-        onPointerMove={onMove}
-        onPointerUp={onEnd}
-        onPointerCancel={onCancel}
-        onLostPointerCapture={onCancel}
+      <Tooltip
+        isEnabled={!!stats}
+        touchTrigger="none"
+        content={
+          stats
+            ? `Utilization ${fmt(stats.utilization * 100, 1)}% · Queue ${stats.queue_depth}. Arrivals include rejected calls.`
+            : ""
+        }
       >
-        <div className="node-copy">
-          <div className="node-heading">
-            <Glyph type={node.type} />
-            <div>
-              <strong>{node.label}</strong>
-              <small>{node.type.replaceAll("_", " ")}</small>
+        <ClickableCard
+          data-node-id={node.id}
+          data-connection-target={node.id}
+          data-ui-host={host}
+          label={`${node.label}, ${node.type}${selected ? ", selected" : ""}${stats ? `, ${stats.state}, utilization ${fmt(stats.utilization * 100, 1)}%, queue ${stats.queue_depth}` : ""}${telemetry ? `, ${arrivalRate === null ? "arrivals unavailable" : fmt(arrivalRate, 1) + " arrivals per simulated second"}` : ""}`}
+          className={`diagram-node ${selected ? "is-selected" : ""} ${source ? "is-source" : ""} ${stats?.state === "down" ? "is-down" : ""}`}
+          padding={3}
+          onClick={onChoose}
+          onPointerDown={onStart}
+          onPointerMove={onMove}
+          onPointerUp={onEnd}
+          onPointerCancel={onCancel}
+          onLostPointerCapture={onCancel}
+        >
+          <div className="node-copy">
+            <div className="node-heading">
+              <Glyph type={node.type} />
+              <div>
+                <strong>{node.label}</strong>
+                <small>{node.type.replaceAll("_", " ")}</small>
+              </div>
+            </div>
+            <div className="node-reading">
+              <span>
+                {telemetry
+                  ? (stats?.state ?? "State unavailable")
+                  : String(node.config.provider || "generic")}
+              </span>
+              <span>
+                {telemetry ? (
+                  <strong className="node-arrival">
+                    {arrivalRate === null
+                      ? "Arrivals —"
+                      : `${fmt(arrivalRate, 1)}/s arriving`}
+                  </strong>
+                ) : (
+                  `Capacity ${node.config.capacity_rps ?? "—"}/s`
+                )}
+              </span>
             </div>
           </div>
-          <div className="node-reading">
-            <span>
-              {stats
-                ? `${stats.state} · ${fmt(stats.utilization * 100, 0)}%`
-                : String(node.config.provider || "generic")}
-            </span>
-            <span>
-              {stats
-                ? `Queue ${stats.queue_depth}`
-                : `Capacity ${node.config.capacity_rps ?? "—"}/s`}
-            </span>
-          </div>
-        </div>
-      </ClickableCard>
+        </ClickableCard>
+      </Tooltip>
       <IconAction
         label={`Connect into ${node.label}`}
         icon={<ArrowRight size={14} />}
@@ -187,7 +209,8 @@ export function Canvas() {
   } | null>(null);
   const selected = selectedNodeIds(s.selected),
     fresh = !!s.run && s.runRevision === s.revision,
-    frame = fresh ? s.run?.frames[s.frame] : null;
+    traffic = sampledTraffic(s.run?.frames ?? [], s.frame, fresh),
+    frame = traffic.frame;
   const worldPoint = (x: number, y: number): Point => {
     const r = surface.current!.getBoundingClientRect(),
       c = workspace.get().camera;
@@ -280,7 +303,11 @@ export function Canvas() {
     });
   }, []);
   useEffect(() => {
-    if (s.panel === "library" && !workspace.get().gestureActive) fit();
+    if (
+      (s.panel === "library" || s.panel === "experiment") &&
+      !workspace.get().gestureActive
+    )
+      fit();
   }, [s.panel, fit]);
   useEffect(() => {
     if (s.aiReviewOpen && !s.gestureActive) fit();
@@ -572,6 +599,8 @@ export function Canvas() {
     wireProblem = wireView?.target
       ? connectionProblem(s.project, wireView.source, wireView.target)
       : "";
+  const rateBoxes: { x: number; y: number; width: number; height: number }[] =
+    [];
   return (
     <div
       ref={surface}
@@ -692,26 +721,28 @@ export function Canvas() {
                 { x: pa.x + 200, y: pa.y + 52 },
                 { x: pb.x, y: pb.y + 52 },
               ),
-              stats = frame?.edges[edge.id],
-              rate = stats
-                ? `${fmt(stats.rps, 0)} req/s${edge.async ? " · async" : ""}`
+              rateValue = traffic.edgeRates[edge.id] ?? null,
+              rate = fresh
+                ? `${rateValue === null ? "rate unavailable" : fmt(rateValue, 1) + " req/s"}${edge.async ? " · async" : ""}`
                 : edge.async
                   ? "async"
                   : "",
-              labelX = (pa.x + 200 + pb.x) / 2,
-              labelY = (pa.y + pb.y) / 2 + 44,
-              // Keep short or crowded connections readable: exact rates remain
-              // in the connection inspector and accessible connection label.
-              labelHalfWidth = rate.length * 3.5 + 8,
-              labelFits = !s.project.nodes.some((node) => {
-                const p = position(node);
-                return (
-                  labelX + labelHalfWidth > p.x - 8 &&
-                  labelX - labelHalfWidth < p.x + 208 &&
-                  labelY > p.y - 8 &&
-                  labelY - 14 < p.y + 118
-                );
-              });
+              visibleRate =
+                fresh && rateValue !== null
+                  ? `${fmt(rateValue, 1)}/s`
+                  : edge.async
+                    ? "async"
+                    : "",
+              label = visibleRate
+                ? connectionRatePosition(
+                    { x: pa.x + 200, y: pa.y + 52 },
+                    { x: pb.x, y: pb.y + 52 },
+                    visibleRate.length * 7 + 12,
+                    s.project.nodes.map(position),
+                    rateBoxes,
+                  )
+                : null;
+            if (label) rateBoxes.push(label.rect);
             return (
               <g key={edge.id}>
                 <path
@@ -737,15 +768,20 @@ export function Canvas() {
                     }
                   }}
                 />
-                {stats && stats.rps > 0 && (
+                {rateValue !== null && rateValue > 0 && (
                   <path
                     d={d}
                     className={`diagram-flow ${s.playing ? "is-playing" : ""}`}
                   />
                 )}
-                {rate && labelFits && (
-                  <text x={labelX} y={labelY} className="diagram-rate">
-                    {rate}
+                {label && (
+                  <text
+                    x={label.x}
+                    y={label.y}
+                    className="diagram-rate"
+                    aria-hidden="true"
+                  >
+                    {visibleRate}
                   </text>
                 )}
               </g>
@@ -776,6 +812,8 @@ export function Canvas() {
             source={wireView?.source === n.id}
             target={wireView?.target === n.id && !wireProblem}
             stats={frame?.nodes[n.id]}
+            telemetry={fresh}
+            arrivalRate={traffic.nodeRates[n.id] ?? null}
             onChoose={(e) => choose(n, e)}
             onStart={(e) => start(e, n)}
             onMove={move}

@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { Project } from "../src/domain/types";
-import { reviewStatus, summarizeProposal } from "../src/domain/proposals";
+import {
+  proposalSummaryGroups,
+  reviewStatus,
+  summarizeProposal,
+} from "../src/domain/proposals";
 
 const pending = {
   applied: false,
@@ -49,6 +53,41 @@ const before: Project = {
   scenario: { duration: 60, seed: 42, rps: 100, events: [] },
   monthly: { hours: 730, traffic_multiplier: 1 },
 };
+
+test("property changes are grouped separately from inventory without parsing human labels", () => {
+  const original: Project = {
+    ...before,
+    nodes: [
+      {
+        id: "lb",
+        label: "Components: traffic",
+        type: "load_balancer",
+        x: 0,
+        y: 0,
+        config: { health_check_delay: 3 },
+      },
+    ],
+  };
+  const proposed = structuredClone(original);
+  proposed.nodes[0].config.health_check_delay = 1;
+  const groups = proposalSummaryGroups(original, proposed);
+  assert.deepEqual(groups.changes, [
+    "Components: traffic · Health check delay: 3 s → 1 s.",
+  ]);
+  assert.deepEqual(groups.inventory, [
+    "Components: 1 to update (Components: traffic).",
+  ]);
+  assert.deepEqual(summarizeProposal(original, proposed), [
+    ...groups.inventory,
+    ...groups.changes,
+  ]);
+  const removal = proposalSummaryGroups(original, before);
+  assert.deepEqual(removal.changes, []);
+  assert.deepEqual(removal.inventory, [
+    "Components: 1 to remove (Components: traffic).",
+  ]);
+  assert.equal(original.nodes[0].config.health_check_delay, 3);
+});
 
 test("summary groups added defaults and detects changes to existing objects without mutating inputs", () => {
   const after: Project = {

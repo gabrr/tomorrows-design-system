@@ -66,9 +66,9 @@
   animation-play-state: running;
 }
 .diagram-rate {
-  font: 11px var(--font-family-body);
+  font: 600 12px var(--font-family-body);
   text-anchor: middle;
-  fill: var(--color-text-secondary);
+  fill: var(--color-text-primary, var(--color-text-secondary));
   paint-order: stroke;
   stroke: var(--color-background-body);
   stroke-width: 5px;
@@ -131,6 +131,11 @@
   margin-top: 14px;
   font-size: 11px;
   color: var(--color-text-secondary);
+}
+.node-arrival {
+  color: var(--color-text-primary, var(--color-text-secondary));
+  font-weight: 600;
+  white-space: nowrap;
 }
 .canvas-caption {
   position: absolute;
@@ -198,8 +203,11 @@
   max-width: calc(100vw - 390px);
 }
 .playback-time {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   white-space: nowrap;
-  min-width: 112px;
+  min-width: 190px;
 }
 .playback-range {
   flex: 1;

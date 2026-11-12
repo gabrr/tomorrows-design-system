@@ -19,9 +19,16 @@ export function reviewStatus(input: {
     : "superseded";
 }
 
-/** Group complete objects by identity so added defaults do not become dozens of rows. */
-export function summarizeProposal(before: Project, after: Project): string[] {
+/** Keep affected-item inventory distinct from the changes a person must review. */
+export function proposalSummaryGroups(
+  before: Project,
+  after: Project,
+): {
+  changes: string[];
+  inventory: string[];
+} {
   const lines: string[] = [];
+  const inventory: string[] = [];
   const nodeLabel = (id: unknown) =>
     after.nodes.find((n) => n.id === id)?.label ||
     before.nodes.find((n) => n.id === id)?.label ||
@@ -71,7 +78,7 @@ export function summarizeProposal(before: Project, after: Project): string[] {
       describe(removed, "remove"),
       describe(updated, "update"),
     ].filter(Boolean);
-    if (parts.length) lines.push(`${label}: ${parts.join("; ")}.`);
+    if (parts.length) inventory.push(`${label}: ${parts.join("; ")}.`);
   }
   collection("Components", before.nodes, after.nodes);
   collection("Connections", before.edges, after.edges, connectionLabel);
@@ -228,6 +235,13 @@ export function summarizeProposal(before: Project, after: Project): string[] {
 
   if (before.name !== after.name)
     lines.push(`Project name: ${before.name} → ${after.name}.`);
+  return { changes: lines, inventory };
+}
+
+/** Flat inventory-first representation retained for existing textual consumers. */
+export function summarizeProposal(before: Project, after: Project): string[] {
+  const summary = proposalSummaryGroups(before, after);
+  const lines = [...summary.inventory, ...summary.changes];
   return lines.length
     ? lines
     : ["No architecture, scenario or monthly assumption changes."];

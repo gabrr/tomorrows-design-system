@@ -100,6 +100,105 @@ class FactoryTests(unittest.TestCase):
         self.fail(f"worker readiness deadline expired: state={row['state']}, "
                   f"lease={row['lease']}, pid={row['pid']}, heartbeat={row['heartbeat']}")
 
+    def snapshot(self):
+        return self.f.snapshot_patch(self.root, self.git('rev-parse', 'HEAD').decode().strip(),
+                                     self.f.home / 'test-input.index')
+
+    def test_snapshot_rejects_budgets_and_special_inputs_before_blob_staging(self):
+        from factory.core import git as real_git
+        cases = [
+            ('per-file', {'MAX_SNAPSHOT_FILE_BYTES': 8}, 'large.txt'),
+            ('total', {'MAX_SNAPSHOT_BYTES': 8}, 'large.txt'),
+            ('file-count', {'MAX_SNAPSHOT_FILES': 1}, 'large.txt'),
+            ('nested', {}, 'nested'),
+            ('special', {}, 'link'),
+        ]
+        for label, limits, name in cases:
+            with self.subTest(label=label):
+                path = self.root / name
+                if label == 'nested':
+                    path.mkdir()
+                    subprocess.check_call(['git', 'init', '-q', str(path)])
+                elif label == 'special':
+                    path.symlink_to('existing.txt')
+                else:
+                    path.write_text('large fixture content')
+                before = self.git('count-objects', '-v')
+                with patch.multiple('factory.core', **({'MAX_SNAPSHOT_FILES': 5000} | limits)), patch('factory.core.git', wraps=real_git) as calls:
+                    with self.assertRaises(FactoryError):
+                        self.snapshot()
+                    self.assertFalse(any('add' in c.args[1:] for c in calls.call_args_list))
+                self.assertEqual(self.git('count-objects', '-v'), before)
+                if path.is_dir():
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+
+    def test_snapshot_does_not_sweep_late_files_or_accept_metadata_changes(self):
+        from factory.core import git as real_git
+        for change in ('new', 'edit'):
+            with self.subTest(change=change):
+                (self.root / 'admitted.txt').write_text('original')
+                def racing_git(root, *args, **kwargs):
+                    if 'add' in args:
+                        if change == 'new':
+                            (self.root / 'late.txt').write_text('never stage me')
+                        else:
+                            (self.root / 'admitted.txt').write_text('concurrent replacement')
+                    return real_git(root, *args, **kwargs)
+                with patch('factory.core.git', side_effect=racing_git):
+                    with self.assertRaisesRegex(FactoryError, 'changed during staging'):
+                        self.snapshot()
+                env = {**os.environ, 'GIT_INDEX_FILE': str(self.f.home / 'test-input.index')}
+                staged = real_git(self.root, 'ls-files', '-z', env=env).split(b'\0')
+                self.assertNotIn(b'late.txt', staged)
+                (self.root / 'admitted.txt').unlink()
+                (self.root / 'late.txt').unlink(missing_ok=True)
+
+    def test_snapshot_preserves_literal_names_user_edits_and_deletions(self):
+        (self.root / 'existing.txt').write_text('user edit preserved')
+        names = ['space name.txt', 'line\nbreak.txt', ':(glob)*.txt', '-option.txt']
+        for name in names:
+            (self.root / name).write_text('dependency input')
+        (self.root / 'docs/PLAN.md').unlink()
+        index_before = (self.root / '.git/index').read_bytes()
+        patch_bytes, changed = self.snapshot()
+        self.assertEqual(set(changed), set(names + ['existing.txt', 'docs/PLAN.md']))
+        self.assertIn(b'user edit preserved', patch_bytes)
+        self.assertEqual((self.root / '.git/index').read_bytes(), index_before)
+
+    def test_prompt_compacts_hashes_but_retains_complete_context_and_artifact(self):
+        self.add()
+        task = self.f.claim('mock')
+        attempt = self.f.home / 'attempts' / task['id'] / str(task['attempt'])
+        attempt.mkdir(parents=True)
+        (self.root / 'dependency.txt').write_text('accepted dependency input')
+        self.f.input_snapshot(task, attempt)
+        self.assertIn('dependency.txt', task['context']['input_hashes'])
+        full_hashes = {f'path-{i}.txt': 'a' * 64 for i in range(5000)}
+        task['context']['input_hashes'].update(full_hashes)
+        atomic_json(attempt / 'context.json', task['context'])
+        before = json.loads((attempt / 'context.json').read_text())
+        prompt_text = self.f.prompt(task)
+        self.assertLess(len(prompt_text.encode()), 256 * 1024)
+        self.assertNotIn('path-4999.txt', prompt_text)
+        from factory.core import digest, encoded
+        self.assertIn(digest(encoded(before['input_hashes']).encode()), prompt_text)
+        self.assertIn('../context.json', prompt_text)
+        self.assertIn('Read the pinned contract and skill files', prompt_text)
+        self.assertIn('input_manifest is audit metadata', prompt_text)
+        self.assertIn('never bulk-load the full input_hashes map', prompt_text)
+        self.assertIn(task['context']['input_tree'], prompt_text)
+        self.assertEqual(task['context'], before)
+        # Normal execution still retains every actual input hash in its artifact.
+        self.f.finish(task, error='fixture released claim')
+        row = self.f.run_once('mock')
+        self.assertEqual(row['state'], 'review', row['error'])
+        context = row['artifact']['context']
+        self.assertIn('dependency.txt', context['input_hashes'])
+        retained = json.loads((self.f.home / 'attempts' / 'one' / '2' / 'context.json').read_text())
+        self.assertEqual(context, retained)
+
     def test_end_to_end_checks_review_combined_integration_no_commit(self):
         head = self.git('rev-parse', 'HEAD')
         index = (self.root / '.git/index').read_bytes()

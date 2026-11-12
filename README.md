@@ -42,6 +42,12 @@ The experiment runs locally. The infrastructure is simulated; nothing is provisi
 | **Reversible exploration** | Undo edits, pin a comparison run, save designs locally and export/import architecture with retained evidence. |
 | **Agent-driven testing** | WebMCP-enabled browsers can use 15 tools backed by the same workspace commands as the UI. Compound changes stay in a visible review until explicitly applied. |
 
+## Changes in 0.4.1
+
+The canvas now shows arrivals per simulated second on components and routed calls per second on connections, using the actual interval between retained samples. Replay identifies that interval; Results identifies the whole run. Editing the design hides current graph rates until you simulate again.
+
+Proposal reviews put concrete setting changes before the affected-item inventory and Apply controls. Factory snapshots now enforce fixed input budgets before staging and keep the full audit hash manifest out of the model prompt while retaining it locally. See the [0.4.1 release notes](docs/RELEASE-0.4.1.md) for behavior, verification and limits.
+
 ## Quick start
 
 Requires **Python 3.11+** and a desktop browser, with a target viewport of at least 1100px wide. Prebuilt UI assets are included; Node.js is only needed for frontend development.
