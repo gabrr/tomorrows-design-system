@@ -78,14 +78,27 @@ class FactoryTests(unittest.TestCase):
         command = [sys.executable, '-c', script, str(self.root), *args] if script else [sys.executable, '-m', 'factory', '--root', str(self.root), *args]
         return subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    def wait_pid(self, task_id='one'):
+    def wait_pid(self, task_id='one', child=None, require_heartbeat=False):
         deadline = time.monotonic() + 8
+        observed = None
         while time.monotonic() < deadline:
             row = self.f.task(task_id)
             if row['pid']:
-                return row['pid']
+                if not require_heartbeat or (observed and observed[0] == row['pid'] and
+                                             row['heartbeat'] > observed[1]):
+                    return row['pid']
+                if observed is None or observed[0] != row['pid']:
+                    observed = (row['pid'], row['heartbeat'])
+            if child is not None and child.poll() is not None:
+                stdout, stderr = child.communicate(timeout=5)
+                logs = sorted((self.f.home / 'attempts' / task_id).glob('*/worker.log'))
+                tail = logs[-1].read_text(errors='replace')[-2000:] if logs else '(no worker log)'
+                self.fail(f"supervisor exited before worker readiness: exit={child.returncode}, "
+                          f"state={row['state']}, lease={row['lease']}, pid={row['pid']}; "
+                          f"stdout={stdout[-2000:]!r}; stderr={stderr[-2000:]!r}; worker={tail}")
             time.sleep(0.02)
-        self.fail('worker did not launch')
+        self.fail(f"worker readiness deadline expired: state={row['state']}, "
+                  f"lease={row['lease']}, pid={row['pid']}, heartbeat={row['heartbeat']}")
 
     def test_end_to_end_checks_review_combined_integration_no_commit(self):
         head = self.git('rev-parse', 'HEAD')
@@ -151,13 +164,23 @@ class FactoryTests(unittest.TestCase):
             self.f.resume('one')
 
     def test_killed_supervisor_recovers_orphan_process(self):
-        self.add(mock={'sleep': 30}, lease_seconds=0.3)
+        # Preparation is not the fault under test. Establish an actual running,
+        # heartbeating worker with the normal lease before killing its owner.
+        self.add(mock={'sleep': 30})
         child = self.child(None, 'run', '--provider', 'mock', '--once')
         try:
-            pid = self.wait_pid()
+            pid = self.wait_pid(child=child, require_heartbeat=True)
+            row = self.f.task('one')
+            self.assertIsNone(child.poll())
+            self.assertEqual(proc_identity(pid), row['process_identity'])
             child.kill()
             child.communicate(timeout=5)
-            time.sleep(0.45)
+            # No wall-clock sleep: only after the supervisor is dead, inject
+            # expiration of that same persisted ownership record.
+            with self.f.transaction() as db:
+                changed = db.execute("UPDATE tasks SET lease=0 WHERE id=? AND owner=? AND pid=? AND state='running'",
+                                     ('one', row['owner'], pid)).rowcount
+            self.assertEqual(changed, 1)
             result = self.f.recover()
             self.assertEqual(result['recovered'], ['one'])
             deadline = time.monotonic() + 2
@@ -169,11 +192,13 @@ class FactoryTests(unittest.TestCase):
                 time.sleep(0.02)
             else:
                 self.assertFalse(proc_identity(pid), 'orphan worker still alive')
+            self.assertEqual(self.f.task('one')['state'], 'ready')
+            self.assertIsNone(self.f.task('one')['pid'])
             self.assertEqual(self.f.recover()['recovered'], [])
         finally:
             if child.poll() is None:
                 child.kill()
-                child.communicate()
+            child.communicate(timeout=5)
             self.f.cancel('one')
 
     def test_malformed_output_never_reaches_review(self):
