@@ -205,7 +205,22 @@ const assert = require("node:assert/strict");
         await hints.keyboard.press("Tab");
       }
       assert.equal(cardFocused, true, "Tab reaches App A's native card button");
-      const tooltip = hints.getByRole("tooltip");
+      const tooltipId = await appA.getAttribute("aria-describedby");
+      assert.ok(tooltipId, "App A owns a telemetry description");
+      const tooltip = hints.locator(`[id="${tooltipId}"]`);
+      // Rapid Tab can leave earlier hints visible during their queued close.
+      // Wait for focus ownership to settle, not an arbitrary sleep or a broad
+      // role lookup that may match other controls' transient hints.
+      await hints.waitForFunction((id) => {
+        const visible = [
+          ...document.querySelectorAll('[role="tooltip"]'),
+        ].filter(
+          (el) =>
+            el.getClientRects().length > 0 &&
+            getComputedStyle(el).visibility !== "hidden",
+        );
+        return visible.length === 1 && visible[0].id === id;
+      }, tooltipId);
       await tooltip.waitFor({ state: "visible" });
       assert.match(
         await tooltip.innerText(),
@@ -213,6 +228,13 @@ const assert = require("node:assert/strict");
       );
       await hints.keyboard.press("Escape");
       await tooltip.waitFor({ state: "hidden" });
+      await hints.waitForFunction(() =>
+        [...document.querySelectorAll('[role="tooltip"]')].every(
+          (el) =>
+            el.getClientRects().length === 0 ||
+            getComputedStyle(el).visibility === "hidden",
+        ),
+      );
       assert.equal(await inspector.isVisible(), true);
       assert.equal(
         await hints.evaluate(
