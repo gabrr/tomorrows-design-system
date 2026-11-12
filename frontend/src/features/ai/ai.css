@@ -1,0 +1,121 @@
+.ai-workspace {
+  position: fixed;
+  bottom: 18px;
+  left: calc(50% - 300px);
+  width: 600px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+.has-run .ai-workspace {
+  bottom: 78px;
+}
+.ai-composer,
+.ai-thread {
+  pointer-events: auto;
+}
+.ai-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ai-thread {
+  position: fixed;
+  right: 18px;
+  top: 96px;
+  bottom: 210px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ai-messages {
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+}
+.ai-entry {
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.ai-entry p,
+.ai-entry pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ai-actions,
+.ai-suggestions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ai-review-actions {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-block: 8px;
+  background: var(--color-background-body);
+}
+.ai-review-status,
+.ai-advisory-note,
+.ai-response-status {
+  color: var(--color-text-secondary);
+  margin-block: 8px;
+}
+.ai-response-status:empty {
+  display: none;
+}
+.ai-entry:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.ai-actions {
+  justify-content: space-between;
+}
+.ai-suggestions {
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.ai-thread-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.ai-thread-heading > strong {
+  grid-column: 1;
+}
+.ai-thread-heading > #ai-conversation-close {
+  grid-column: 2;
+  grid-row: 1;
+}
+.ai-thread-heading > button:not(#ai-conversation-close) {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+.proposal-summary {
+  display: grid;
+  gap: 8px;
+  padding-block: 8px;
+}
+.proposal-summary ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+}
+.ai-entry > .app-disclosure {
+  margin-block: 8px;
+}
+
+.ai-entry > .app-disclosure > button {
+  min-height: 36px;
+  font-size: 14px;
+  line-height: 1.4;
+}

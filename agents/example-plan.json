@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "provider": "codex",
+  "allowed_scopes": ["docs/features/"],
+  "checks": [["python3", "scripts/check.py"]],
+  "concurrency": 1,
+  "total_seconds": 1800,
+  "max_repairs": 2,
+  "tasks": [{
+    "id": "document-a-reference-experiment",
+    "role": "simulation",
+    "scope": ["docs/features/failover-reference.md"],
+    "acceptance": "A reproducible failover walkthrough cites actual model behavior, timestamps, request conservation and relevant limitations without claiming calibrated production fidelity.",
+    "prompt": "Read the implemented failover preset and simulator. Run it, inspect the returned evidence and write a concise reference walkthrough at docs/features/failover-reference.md. Include commands and observed values. Do not change implementation or tests.",
+    "dependencies": [],
+    "timeout": 600
+  }]
+}

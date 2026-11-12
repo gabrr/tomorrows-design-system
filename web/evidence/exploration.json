@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "checks": [
+    "New workspace starts without history from another design",
+    "Add component undo/redo restores exact node count",
+    "Whole drag is one reversible edit, not a history entry per pointer sample",
+    "Deleting a service and its connections/events is fully reversible",
+    "Canvas Cmd/Ctrl+Z and redo shortcuts restore project edits",
+    "Editing after undo discards the abandoned future and typing is grouped",
+    "An entire reviewed AI design is one undoable action",
+    "Undo to the same design cannot reactivate an old AI review approval",
+    "Import resets editable history across workspace identities",
+    "Design edits and undo suppress stale graph telemetry while retaining clearly marked result evidence",
+    "Pinned baseline remains the original run across multiple later experiments",
+    "Baseline JSON round-trip preserves exact evidence and marks external origin",
+    "Contradictory imported baseline evidence cannot replace the workspace",
+    "Releasing the baseline restores comparison with the immediately previous run",
+    "No page errors in reversible desktop exploration workflows"
+  ],
+  "errors": [],
+  "limits": [
+    "AI replies are fixture data; no provider transmission.",
+    "Simulations, validation and evidence boundaries use the real local backend.",
+    "Undo history is bounded and in memory; it is not a persistent version-control system."
+  ]
+}

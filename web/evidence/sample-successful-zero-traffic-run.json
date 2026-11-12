@@ -1,0 +1,257 @@
+{
+  "model_version": "tds-des-1.0",
+  "catalog_version": "tds-components-1.1",
+  "seed": 42,
+  "duration": 2,
+  "project": {
+    "id": "sample-metrics",
+    "name": "Sample-aware successful",
+    "nodes": [
+      {
+        "id": "service",
+        "type": "api_service",
+        "label": "Service",
+        "x": 100,
+        "y": 50,
+        "config": {
+          "capacity_rps": 100,
+          "latency_ms": 10,
+          "concurrency": 100,
+          "queue_limit": 1000,
+          "hourly_cost": 0.1,
+          "provider": "generic",
+          "region": "local",
+          "instance_class": "custom"
+        }
+      }
+    ],
+    "edges": [],
+    "scenario": {
+      "duration": 2,
+      "rps": 0,
+      "seed": 42,
+      "events": []
+    },
+    "monthly": {
+      "hours": 730,
+      "traffic_multiplier": 1
+    }
+  },
+  "summary": {
+    "requests": 0,
+    "completed": 0,
+    "failed": 0,
+    "pending": 0,
+    "availability": 1,
+    "resolved_availability": 1,
+    "p50_ms": 0,
+    "p95_ms": 0,
+    "p99_ms": 0,
+    "background_jobs": 0,
+    "background_completed": 0,
+    "background_failed": 0,
+    "background_pending": 0,
+    "background_p95_ms": 0,
+    "experiment_cost": 0.00005555555555555556,
+    "monthly_cost": 73.00000000000001
+  },
+  "frames": [
+    {
+      "time": 0,
+      "requests": 0,
+      "completed": 0,
+      "failed": 0,
+      "inflight": 0,
+      "background_jobs": 0,
+      "background_completed": 0,
+      "background_failed": 0,
+      "background_pending": 0,
+      "nodes": {
+        "service": {
+          "state": "up",
+          "utilization": 0,
+          "queue_depth": 0,
+          "inflight": 0,
+          "received": 0,
+          "started": 0,
+          "completed": 0,
+          "failed": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "capacity_rps": 100,
+          "replicas": 1
+        }
+      },
+      "edges": {}
+    },
+    {
+      "time": 1,
+      "requests": 0,
+      "completed": 0,
+      "failed": 0,
+      "inflight": 0,
+      "background_jobs": 0,
+      "background_completed": 0,
+      "background_failed": 0,
+      "background_pending": 0,
+      "nodes": {
+        "service": {
+          "state": "up",
+          "utilization": 0,
+          "queue_depth": 0,
+          "inflight": 0,
+          "received": 0,
+          "started": 0,
+          "completed": 0,
+          "failed": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "capacity_rps": 100,
+          "replicas": 1
+        }
+      },
+      "edges": {}
+    },
+    {
+      "time": 2,
+      "requests": 0,
+      "completed": 0,
+      "failed": 0,
+      "inflight": 0,
+      "background_jobs": 0,
+      "background_completed": 0,
+      "background_failed": 0,
+      "background_pending": 0,
+      "nodes": {
+        "service": {
+          "state": "up",
+          "utilization": 0,
+          "queue_depth": 0,
+          "inflight": 0,
+          "received": 0,
+          "started": 0,
+          "completed": 0,
+          "failed": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "capacity_rps": 100,
+          "replicas": 1
+        }
+      },
+      "edges": {}
+    }
+  ],
+  "events": [],
+  "costs": [
+    {
+      "id": "service",
+      "label": "Service",
+      "experiment_cost": 0.00005555555555555556,
+      "monthly_cost": 73.00000000000001,
+      "infrastructure_cost": 0.00005555555555555556,
+      "request_cost": 0,
+      "token_cost": 0,
+      "egress_cost": 0,
+      "billable_requests": 0,
+      "rate_sources": {
+        "hourly_cost": {
+          "value": 0.1,
+          "kind": "manual estimate"
+        },
+        "cost_per_request": {
+          "value": null,
+          "kind": "unknown; omitted usage rate"
+        },
+        "request_cost_per_million": {
+          "value": null,
+          "kind": "unknown; omitted usage rate"
+        },
+        "input_cost_per_million": {
+          "value": null,
+          "kind": "unknown; omitted usage rate"
+        },
+        "output_cost_per_million": {
+          "value": null,
+          "kind": "unknown; omitted usage rate"
+        },
+        "egress_cost_per_gb": {
+          "value": null,
+          "kind": "unknown; omitted usage rate"
+        }
+      },
+      "provenance_summary": "hourly_cost: manual estimate",
+      "rates": {
+        "hourly_cost": 0.1,
+        "cost_per_request": null,
+        "request_cost_per_million": null,
+        "input_cost_per_million": null,
+        "output_cost_per_million": null,
+        "egress_cost_per_gb": null
+      },
+      "defaulted_rates": [],
+      "provenance": "manual estimate; illustrative configured rates"
+    }
+  ],
+  "budget": {
+    "node_visits": 0,
+    "operations": 3,
+    "max_requests": 100000,
+    "max_node_visits": 500000,
+    "max_operations": 3000000
+  },
+  "assumptions": [
+    "Uncalibrated illustrative service-station model; not measured cloud, database or AI accuracy.",
+    "Seeded paced arrivals (not Poisson), independent uniform latency jitter, weighted routing and independent cache hits.",
+    "Only DAGs; ordinary nodes synchronously fan out to every edge. A foreground call waits for all synchronous branches; there are no retries or cancellation.",
+    "Concurrency bounds local service only; downstream waiting releases the upstream service slot. Capacity spaces service admissions; replicas multiply capacity and concurrency.",
+    "Queues are bounded FIFO in memory. Failure drops queued/local active calls; work already sent downstream continues. Recovery permits new work; no replay.",
+    "Weighted routers observe failures and recoveries after health_check_delay seconds; no active probe requests. Cache hits bypass all outgoing edges, including async edges.",
+    "Async edges and queue components acknowledge after local service and create independent background flows; background failure does not fail a foreground request.",
+    "Events at a timestamp precede service/traffic, with input order breaking ties. Window events sample once uniformly from max(window start,time if provided) to window end. Conditions sample once per second (also at the final partial frame), use cumulative local errors, and fire at most once in input order.",
+    "Ingress selects one root node per request using ingress_weight (default equal); disconnected roots share the offered traffic. Deployment boundaries do not contain other nodes.",
+    "Traffic events target global and replace RPS. Scale defaults to setting capacity_rps; field may be replicas or concurrency. Latency and scale changes affect future admissions only.",
+    "Node inflight counts local service; global inflight counts unresolved foreground requests. Utilization is occupied service slots, or 1 while an up node has queued work; it is a saturation indicator, not CPU usage.",
+    "Edge rate limits serialize admissions; bandwidth serializes payload transmission. Edge queue_limit bounds outstanding transfers when admission would wait; no packet loss or protocol model.",
+    "Runs stop at duration with pending work retained in counts. Availability is completed/all arrivals (pending included); resolved_availability excludes pending. Nearest-rank percentiles include successful completions only.",
+    "Quote provenance applies only to matched rate fields; unmodified/defaulted rates remain estimates. Published prices do not calibrate usage. USD costs use configured manual estimates unless pricing_provenance says otherwise. Rates default to illustrative hourly cost; missing usage rates are zero, not free-provider claims. Failed started services are billable; rejected services are not.",
+    "Monthly projection assumes 730 hours at experiment-average provisioned replicas, including downtime, and experiment-average billable usage times traffic_multiplier=1. No tiering, tax, discounts or capacity re-simulation; egress GB is decimal. Node and edge egress rates both charge if both are configured."
+  ],
+  "pricing_snapshots": [],
+  "referenced_pricing_snapshot_ids": [],
+  "project_snapshot": {
+    "id": "sample-metrics",
+    "name": "Sample-aware successful",
+    "nodes": [
+      {
+        "id": "service",
+        "type": "api_service",
+        "label": "Service",
+        "x": 100,
+        "y": 50,
+        "config": {
+          "capacity_rps": 100,
+          "latency_ms": 10,
+          "concurrency": 100,
+          "queue_limit": 1000,
+          "hourly_cost": 0.1,
+          "provider": "generic",
+          "region": "local",
+          "instance_class": "custom"
+        }
+      }
+    ],
+    "edges": [],
+    "scenario": {
+      "duration": 2,
+      "rps": 0,
+      "seed": 42,
+      "events": []
+    },
+    "monthly": {
+      "hours": 730,
+      "traffic_multiplier": 1
+    }
+  },
+  "run_id": "05a78b62b7e768a135f1deb8",
+  "created_at": 1794414648.478422
+}

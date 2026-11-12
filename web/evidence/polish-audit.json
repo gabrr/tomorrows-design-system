@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "scope": "Component library, floating rail, search, keyboard recovery and appearance",
+  "browser": "Codex in-app browser",
+  "geometry": {
+    "active": "search",
+    "buttons": [
+      {
+        "height": 44,
+        "name": "Components",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Inspector",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Experiment and results",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Undo design edit",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Redo design edit",
+        "width": 44
+      }
+    ],
+    "close": {
+      "height": 44,
+      "width": 44,
+      "x": 307,
+      "y": 113
+    },
+    "field": {
+      "borderColor": "rgb(47, 111, 126)",
+      "borderRadius": "10px",
+      "boxShadow": "rgb(47, 111, 126) 0px 0px 0px 1px",
+      "fontSize": "14px",
+      "outline": "rgb(100, 104, 102) none 0px"
+    },
+    "icons": [
+      {
+        "height": 20,
+        "width": 20
+      },
+      {
+        "height": 20,
+        "width": 20
+      },
+      {
+        "height": 20,
+        "width": 20
+      },
+      {
+        "height": 20,
+        "width": 20
+      },
+      {
+        "height": 20,
+        "width": 20
+      }
+    ],
+    "input": {
+      "borderColor": "rgb(100, 104, 102)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "fontSize": "13px",
+      "outline": "rgb(100, 104, 102) none 0px"
+    },
+    "search": {
+      "height": 44,
+      "width": 252,
+      "x": 99,
+      "y": 277
+    },
+    "select": {
+      "height": 44,
+      "width": 252,
+      "x": 99,
+      "y": 221
+    }
+  },
+  "contrast": {
+    "light": {
+      "controlBoundary": 3.5230499416503864,
+      "focusCanvas": 5.681948938631451,
+      "mutedCanvas": 5.654505368103894,
+      "mutedPane": 5.271520749266944,
+      "selectedIcon": 8.60471080665325,
+      "textCanvas": 15.329585836233289
+    },
+    "dark": {
+      "controlBoundary": 6.800255581739719,
+      "focusCanvas": 7.261701102195571,
+      "mutedCanvas": 10.02098878792382,
+      "mutedPane": 8.073192942808944,
+      "selectedIcon": 6.638383847724263,
+      "textCanvas": 17.73931989474877
+    }
+  },
+  "checks": [
+    "Original inset-focus defect reproduced in current app",
+    "Single whole-field focus boundary and no competing input outline",
+    "Search and select: same 252px width and 44px height",
+    "Rail icons: consistent 20px; labeled buttons and close target: 44px",
+    "Quieter count and compact component rows retain all 150 entries",
+    "Search filters actual component catalog",
+    "Empty search has a recovery message and clearing restores 150 entries",
+    "Tab reaches the first filtered component with visible focus",
+    "Escape closes the panel and restores Components trigger focus",
+    "Catalog scroll leaves header, preset and search fixed",
+    "Filtering after deep catalog scroll returns to first match",
+    "Leaving utilities by keyboard focus dismisses the menu",
+    "Adding a component and Undo preserve expected node counts",
+    "Light and dark semantic text/icon/focus/border contrast thresholds passed",
+    "No console errors in final in-app verification"
+  ],
+  "limits": [
+    "Bounded UI scope only; not a whole-app design certification",
+    "No full screen-reader or forced-colors audit in this run",
+    "No live AI request or telemetry transmission from this preview"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "checks": [
+    "Full desktop viewport belongs to canvas; panels start closed",
+    "Catalog drag/drop adds component at canvas position and opens inspector",
+    "Nodes remain directly draggable",
+    "Natural-language architecture request produces a review without numeric entry or implicit changes",
+    "Follow-ups refine the pending design; superseded proposals cannot be applied",
+    "One action applies and runs real scenario; failed node and playback are visible with details closed",
+    "Detailed costs/results and manual tools remain available without covering canvas by default",
+    "Voice transcription preserves typed intent, stops cleanly, and never submits automatically",
+    "Denied microphone access produces actionable recovery and resets listening state",
+    "Escape releases voice capture and closes panels",
+    "AI failure preserves prompt and editable architecture with retry available",
+    "Time System light/dark surfaces preserve desktop canvas composition",
+    "Unsupported speech browser explains alternatives without pretending to record",
+    "No browser page errors"
+  ],
+  "errors": [],
+  "limits": [
+    "AI and speech service are fixture responses; no physical microphone recording tested.",
+    "Apply and simulation use real validation and the local engine.",
+    "Desktop Chromium only."
+  ]
+}

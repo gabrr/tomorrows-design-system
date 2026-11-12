@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "roles": {
+    "coordinator": {
+      "template": "Integrate accepted work; preserve evidence and shared contracts.",
+      "skills": [
+        "skills/coordinator/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
+    },
+    "planner-delivery": {
+      "template": "Decompose explicit acceptance into scoped tasks and dependency order.",
+      "skills": [
+        "skills/planning/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "research-skills": {
+      "template": "Use primary sources, record uncertainty, and produce bounded versioned skills.",
+      "skills": [
+        "skills/skills-research/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "architecture": {
+      "template": "Preserve shared interfaces and explain architectural tradeoffs with evidence.",
+      "skills": [
+        "skills/architecture/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "simulation": {
+      "template": "Implement seeded models; preserve conservation and disclose calibration limits.",
+      "skills": [
+        "skills/simulation-validation/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "cloud-cost": {
+      "template": "Record provenance, units and missing prices; never invent measured fidelity.",
+      "skills": [
+        "skills/cloud-cost/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "ux-design": {
+      "template": "Make workflows comprehensible, accessible and honest about uncertainty.",
+      "skills": [
+        "skills/ux-design/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "frontend": {
+      "template": "Implement dependency-light accessible interfaces against the shared contract.",
+      "skills": [
+        "skills/frontend/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "backend": {
+      "template": "Implement validated standard-library interfaces with meaningful fault tests.",
+      "skills": [
+        "skills/backend/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "qa": {
+      "template": "Independently inspect actual artifacts and acceptance evidence; do not weaken checks.",
+      "skills": [
+        "skills/qa/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
+    },
+    "release": {
+      "template": "Verify clean local operation, migration, rollback and documented limitations.",
+      "skills": [
+        "skills/release/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
+    },
+    "reliability-human-factors": {
+      "template": "Inspect actual artifacts for unsupported assumptions, contradictions, context overload, misleading precision and user comprehension; inject recovery failures.",
+      "skills": [
+        "skills/agent-reliability/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
+    },
+    "architecture-review": {
+      "template": "Independently review frontend boundaries, data integrity, component-system adoption, event ownership, state flow, packaging and maintainability. Inspect actual artifacts, identify concrete defects, and require evidence for closure.",
+      "skills": [
+        "skills/architecture/SKILL.md",
+        "skills/qa/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": true
+      }
+    },
+    "simulated-user-builder": {
+      "template": "Simulate the user journey for first-time architecture building, direct connections and navigation. Record actual actions, evidence and actionable findings. Separate cognitive walkthroughs from live browser tests. Never approve implementation or fabricate observations.",
+      "skills": [
+        "skills/user-simulation/SKILL.md",
+        "skills/ux-design/SKILL.md",
+        "skills/qa/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    },
+    "simulated-user-operator": {
+      "template": "Simulate the user journey for multi-element editing, group movement, compound scenarios and undo. Record actual actions, evidence and actionable findings. Separate cognitive walkthroughs from live browser tests. Never approve implementation or fabricate observations.",
+      "skills": [
+        "skills/user-simulation/SKILL.md",
+        "skills/ux-design/SKILL.md",
+        "skills/qa/SKILL.md"
+      ],
+      "permissions": {
+        "sandbox": "workspace-write",
+        "review": false
+      }
+    }
+  }
+}

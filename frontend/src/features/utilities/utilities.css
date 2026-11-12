@@ -1,0 +1,36 @@
+.utility-layout {
+  min-width: 0;
+}
+.utility-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.utility-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.utility-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.utility-review {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-block: 18px;
+  border-top: 1px solid var(--border, #8884);
+}
+.utility-layout pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 320px;
+  overflow: auto;
+}
+.utility-preserve {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

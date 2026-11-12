@@ -1,0 +1,220 @@
+{
+  "generated_at": "2026-11-12T17:44:16.378Z",
+  "evidence": [
+    {
+      "name": "Token quote leaves omitted hourly cost an illustrative default",
+      "cost": {
+        "id": "service",
+        "label": "Service",
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001,
+        "infrastructure_cost": 0.00005555555555555556,
+        "request_cost": 0,
+        "token_cost": 0,
+        "egress_cost": 0,
+        "billable_requests": 4,
+        "rate_sources": {
+          "hourly_cost": {
+            "value": 0.1,
+            "kind": "illustrative default"
+          },
+          "cost_per_request": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "request_cost_per_million": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "input_cost_per_million": {
+            "value": 0.2,
+            "kind": "provider-published quote",
+            "source": "https://example.com/synthetic",
+            "retrieved_at": null,
+            "record_id": "synthetic-token-quote"
+          },
+          "output_cost_per_million": {
+            "value": 0.6,
+            "kind": "provider-published quote",
+            "source": "https://example.com/synthetic",
+            "retrieved_at": null,
+            "record_id": "synthetic-token-quote"
+          },
+          "egress_cost_per_gb": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          }
+        },
+        "provenance_summary": "hourly_cost: illustrative default; input_cost_per_million: provider-published quote; output_cost_per_million: provider-published quote",
+        "rates": {
+          "hourly_cost": 0.1,
+          "cost_per_request": null,
+          "request_cost_per_million": null,
+          "input_cost_per_million": 0.2,
+          "output_cost_per_million": 0.6,
+          "egress_cost_per_gb": null
+        },
+        "defaulted_rates": [
+          "hourly_cost"
+        ],
+        "provenance": {
+          "id": "synthetic-token-quote",
+          "currency": "USD",
+          "unit": "USD / million tokens",
+          "input_per_million": 0.2,
+          "output_per_million": 0.6,
+          "source": "https://example.com/synthetic",
+          "provenance": "provider-published",
+          "applied_fields": [
+            "input_cost_per_million",
+            "output_cost_per_million"
+          ]
+        }
+      },
+      "text": "Hourly cost: 0.1 USD/hour · illustrative default\nInput cost per million: 0.2 USD/million input tokens · provider-published quote · https://example.com/synthetic\nOutput cost per million: 0.6 USD/million output tokens · provider-published quote · https://example.com/synthetic\nIllustrative defaults: Hourly cost",
+      "passed": true
+    },
+    {
+      "name": "Manual hourly edit remains an estimate beside published token quote",
+      "cost": {
+        "id": "service",
+        "label": "Service",
+        "experiment_cost": 0.005,
+        "monthly_cost": 6570,
+        "infrastructure_cost": 0.005,
+        "request_cost": 0,
+        "token_cost": 0,
+        "egress_cost": 0,
+        "billable_requests": 4,
+        "rate_sources": {
+          "hourly_cost": {
+            "value": 9,
+            "kind": "manual estimate"
+          },
+          "cost_per_request": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "request_cost_per_million": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "input_cost_per_million": {
+            "value": 0.2,
+            "kind": "provider-published quote",
+            "source": "https://example.com/synthetic",
+            "retrieved_at": null,
+            "record_id": "synthetic-token-quote"
+          },
+          "output_cost_per_million": {
+            "value": 0.6,
+            "kind": "provider-published quote",
+            "source": "https://example.com/synthetic",
+            "retrieved_at": null,
+            "record_id": "synthetic-token-quote"
+          },
+          "egress_cost_per_gb": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          }
+        },
+        "provenance_summary": "hourly_cost: manual estimate; input_cost_per_million: provider-published quote; output_cost_per_million: provider-published quote",
+        "rates": {
+          "hourly_cost": 9,
+          "cost_per_request": null,
+          "request_cost_per_million": null,
+          "input_cost_per_million": 0.2,
+          "output_cost_per_million": 0.6,
+          "egress_cost_per_gb": null
+        },
+        "defaulted_rates": [],
+        "provenance": {
+          "id": "synthetic-token-quote",
+          "currency": "USD",
+          "unit": "USD / million tokens",
+          "input_per_million": 0.2,
+          "output_per_million": 0.6,
+          "source": "https://example.com/synthetic",
+          "provenance": "provider-published",
+          "applied_fields": [
+            "input_cost_per_million",
+            "output_cost_per_million"
+          ]
+        }
+      },
+      "text": "Hourly cost: 9 USD/hour · manual estimate\nInput cost per million: 0.2 USD/million input tokens · provider-published quote · https://example.com/synthetic\nOutput cost per million: 0.6 USD/million output tokens · provider-published quote · https://example.com/synthetic",
+      "passed": true
+    },
+    {
+      "name": "Manual token edit loses published status for that rate only",
+      "cost": {
+        "id": "service",
+        "label": "Service",
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001,
+        "infrastructure_cost": 0.00005555555555555556,
+        "request_cost": 0,
+        "token_cost": 0,
+        "egress_cost": 0,
+        "billable_requests": 4,
+        "rate_sources": {
+          "hourly_cost": {
+            "value": 0.1,
+            "kind": "illustrative default"
+          },
+          "cost_per_request": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "request_cost_per_million": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          },
+          "input_cost_per_million": {
+            "value": 0.7,
+            "kind": "manual estimate"
+          },
+          "output_cost_per_million": {
+            "value": 0.6,
+            "kind": "provider-published quote",
+            "source": "https://example.com/synthetic",
+            "retrieved_at": null,
+            "record_id": "synthetic-token-quote"
+          },
+          "egress_cost_per_gb": {
+            "value": null,
+            "kind": "unknown; omitted usage rate"
+          }
+        },
+        "provenance_summary": "hourly_cost: illustrative default; input_cost_per_million: manual estimate; output_cost_per_million: provider-published quote",
+        "rates": {
+          "hourly_cost": 0.1,
+          "cost_per_request": null,
+          "request_cost_per_million": null,
+          "input_cost_per_million": 0.7,
+          "output_cost_per_million": 0.6,
+          "egress_cost_per_gb": null
+        },
+        "defaulted_rates": [
+          "hourly_cost"
+        ],
+        "provenance": {
+          "id": "synthetic-token-quote",
+          "currency": "USD",
+          "unit": "USD / million tokens",
+          "input_per_million": 0.2,
+          "output_per_million": 0.6,
+          "source": "https://example.com/synthetic",
+          "provenance": "provider-published",
+          "applied_fields": [
+            "input_cost_per_million",
+            "output_cost_per_million"
+          ]
+        }
+      },
+      "text": "Hourly cost: 0.1 USD/hour · illustrative default\nInput cost per million: 0.7 USD/million input tokens · manual estimate\nOutput cost per million: 0.6 USD/million output tokens · provider-published quote · https://example.com/synthetic\nIllustrative defaults: Hourly cost",
+      "passed": true
+    }
+  ],
+  "limits": "Synthetic source metadata and engine interoperability only; no real provider quote or production accuracy verified."
+}

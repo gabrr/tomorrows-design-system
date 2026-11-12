@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible editing, simulation or UI problem.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What were you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include a small synthetic architecture if useful. Remove credentials and private infrastructure details.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, OS and project version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, errors or experiment evidence
+      description: Label observations that are estimated, stale or imported. Do not paste secrets or personal data.

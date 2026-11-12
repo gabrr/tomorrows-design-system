@@ -1,0 +1,39 @@
+test_checks_cannot_modify_the_artifact (test_factory.FactoryTests.test_checks_cannot_modify_the_artifact) ... ok
+test_cli_help_status_and_explicit_worker (test_factory.FactoryTests.test_cli_help_status_and_explicit_worker) ... ok
+test_codex_adapter_never_bypasses_approval_or_sandbox (test_factory.FactoryTests.test_codex_adapter_never_bypasses_approval_or_sandbox) ... ok
+test_combined_checks_are_enforced_and_preserve_unrelated_changes (test_factory.FactoryTests.test_combined_checks_are_enforced_and_preserve_unrelated_changes) ... ok
+test_concurrent_claim_is_atomic_and_budget_bounded (test_factory.FactoryTests.test_concurrent_claim_is_atomic_and_budget_bounded) ... ok
+test_conflicting_integration_preserves_root_and_verified_evidence (test_factory.FactoryTests.test_conflicting_integration_preserves_root_and_verified_evidence) ... ok
+test_crash_mid_integration_rolls_back_own_paths_idempotently (test_factory.FactoryTests.test_crash_mid_integration_rolls_back_own_paths_idempotently) ... ok
+test_dependencies_wait_for_integration (test_factory.FactoryTests.test_dependencies_wait_for_integration) ... ok
+test_end_to_end_checks_review_combined_integration_no_commit (test_factory.FactoryTests.test_end_to_end_checks_review_combined_integration_no_commit) ... ok
+test_expired_lease_recovery_is_idempotent_and_fences_old_owner (test_factory.FactoryTests.test_expired_lease_recovery_is_idempotent_and_fences_old_owner) ... ok
+test_failed_checks_never_reach_review (test_factory.FactoryTests.test_failed_checks_never_reach_review) ... ok
+test_independent_rejection_requires_explicit_retry (test_factory.FactoryTests.test_independent_rejection_requires_explicit_retry) ... ok
+test_integration_rollback_after_write_failure (test_factory.FactoryTests.test_integration_rollback_after_write_failure) ... ok
+test_killed_integration_supervisor_recovers_check_group (test_factory.FactoryTests.test_killed_integration_supervisor_recovers_check_group) ... ok
+test_killed_supervisor_recovers_orphan_process (test_factory.FactoryTests.test_killed_supervisor_recovers_orphan_process) ... ok
+test_killed_worker_bounded_retry_and_logs (test_factory.FactoryTests.test_killed_worker_bounded_retry_and_logs) ... ok
+test_malformed_output_never_reaches_review (test_factory.FactoryTests.test_malformed_output_never_reaches_review) ... ok
+test_no_self_approval_and_approval_required (test_factory.FactoryTests.test_no_self_approval_and_approval_required) ... ok
+test_pause_resume_and_cancel_pending (test_factory.FactoryTests.test_pause_resume_and_cancel_pending) ... ok
+test_preexisting_local_input_is_not_worker_output (test_factory.FactoryTests.test_preexisting_local_input_is_not_worker_output) ... ok
+test_recovery_after_db_commit_does_not_undo_integrated_files (test_factory.FactoryTests.test_recovery_after_db_commit_does_not_undo_integrated_files) ... ok
+test_recovery_refuses_concurrent_integration (test_factory.FactoryTests.test_recovery_refuses_concurrent_integration) ... ok
+test_recovery_will_not_clobber_concurrent_manual_edits (test_factory.FactoryTests.test_recovery_will_not_clobber_concurrent_manual_edits) ... ok
+test_result_cannot_supply_commands_or_approval (test_factory.FactoryTests.test_result_cannot_supply_commands_or_approval) ... ok
+test_review_is_bound_to_artifact_hash (test_factory.FactoryTests.test_review_is_bound_to_artifact_hash) ... ok
+test_running_cancellation_terminates_group_and_does_not_retry (test_factory.FactoryTests.test_running_cancellation_terminates_group_and_does_not_retry) ... ok
+test_scope_violation_never_approved (test_factory.FactoryTests.test_scope_violation_never_approved) ... ok
+test_stale_contract_before_claim_and_after_review (test_factory.FactoryTests.test_stale_contract_before_claim_and_after_review) ... ok
+test_stale_skill_blocks_integration (test_factory.FactoryTests.test_stale_skill_blocks_integration) ... ok
+test_timeout (test_factory.FactoryTests.test_timeout) ... ok
+test_two_integrations_preserve_combined_local_changes (test_factory.FactoryTests.test_two_integrations_preserve_combined_local_changes) ... ok
+test_uninitialized_status_is_empty (test_factory.FactoryTests.test_uninitialized_status_is_empty) ... ok
+test_unknown_process_identity_fails_closed (test_factory.FactoryTests.test_unknown_process_identity_fails_closed) ... ok
+test_validation_paths_argv_role_and_missing_acceptance (test_factory.FactoryTests.test_validation_paths_argv_role_and_missing_acceptance) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 34.147s
+
+OK

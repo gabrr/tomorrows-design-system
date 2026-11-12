@@ -1,0 +1,909 @@
+{
+  "base_url": "http://127.0.0.1:8899",
+  "browser": "151.0.7922.34",
+  "generated_at": "2026-11-11T16:30:48.186Z",
+  "cases": [
+    {
+      "name": "successful-observed",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 10.000000000000009,
+        "p95_ms": 10.000000000000009,
+        "p99_ms": 10.000000000000009,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n10 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\nNo previous run"
+          },
+          {
+            "label": "p50 latency",
+            "value": "10 ms",
+            "text": "p50 latency\n10 ms\nNo previous run"
+          },
+          {
+            "label": "p95 latency",
+            "value": "10 ms",
+            "text": "p95 latency\n10 ms\nNo previous run"
+          },
+          {
+            "label": "p99 latency",
+            "value": "10 ms",
+            "text": "p99 latency\n10 ms\nNo previous run"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\nNo previous run"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\nNo previous run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "successful-zero-traffic",
+      "summary": {
+        "requests": 0,
+        "completed": 0,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "Unavailable",
+            "text": "Availability\nUnavailable\nNo observations: no requests\nComparison unavailable: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "successful-after-empty",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 10.000000000000009,
+        "p95_ms": 10.000000000000009,
+        "p99_ms": 10.000000000000009,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n10 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\nComparison unavailable: previous run: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "10 ms",
+            "text": "p50 latency\n10 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "10 ms",
+            "text": "p95 latency\n10 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "10 ms",
+            "text": "p99 latency\n10 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "successful-repeated",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 10.000000000000009,
+        "p95_ms": 10.000000000000009,
+        "p99_ms": 10.000000000000009,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n10 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\n+0 pp vs previous"
+          },
+          {
+            "label": "p50 latency",
+            "value": "10 ms",
+            "text": "p50 latency\n10 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "p95 latency",
+            "value": "10 ms",
+            "text": "p95 latency\n10 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "p99 latency",
+            "value": "10 ms",
+            "text": "p99 latency\n10 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-failed-observed",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 4,
+        "pending": 0,
+        "availability": 0,
+        "resolved_availability": 0,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\nNo previous run"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\nNo previous run"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\nNo previous run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-failed-zero-traffic",
+      "summary": {
+        "requests": 0,
+        "completed": 0,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "Unavailable",
+            "text": "Availability\nUnavailable\nNo observations: no requests\nComparison unavailable: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-failed-after-empty",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 4,
+        "pending": 0,
+        "availability": 0,
+        "resolved_availability": 0,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\nComparison unavailable: previous run: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-failed-repeated",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 4,
+        "pending": 0,
+        "availability": 0,
+        "resolved_availability": 0,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\n+0 pp vs previous"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-pending-observed",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 0,
+        "pending": 4,
+        "availability": 0,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\nNo previous run"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nNo previous run"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\nNo previous run"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\nNo previous run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-pending-zero-traffic",
+      "summary": {
+        "requests": 0,
+        "completed": 0,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "Unavailable",
+            "text": "Availability\nUnavailable\nNo observations: no requests\nComparison unavailable: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-pending-after-empty",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 0,
+        "pending": 4,
+        "availability": 0,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\nComparison unavailable: previous run: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "all-pending-repeated",
+      "summary": {
+        "requests": 4,
+        "completed": 0,
+        "failed": 0,
+        "pending": 4,
+        "availability": 0,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "0%",
+            "text": "Availability\n0%\n+0 pp vs previous"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero-latency-observed",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n0 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\nNo previous run"
+          },
+          {
+            "label": "p50 latency",
+            "value": "0 ms",
+            "text": "p50 latency\n0 ms\nNo previous run"
+          },
+          {
+            "label": "p95 latency",
+            "value": "0 ms",
+            "text": "p95 latency\n0 ms\nNo previous run"
+          },
+          {
+            "label": "p99 latency",
+            "value": "0 ms",
+            "text": "p99 latency\n0 ms\nNo previous run"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\nNo previous run"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\nNo previous run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero-latency-zero-traffic",
+      "summary": {
+        "requests": 0,
+        "completed": 0,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\nUnavailable\n\nNo observations: no completed requests\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "Unavailable",
+            "text": "Availability\nUnavailable\nNo observations: no requests\nComparison unavailable: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "Unavailable",
+            "text": "p50 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "Unavailable",
+            "text": "p95 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "Unavailable",
+            "text": "p99 latency\nUnavailable\nNo observations: no completed requests\nComparison unavailable: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero-latency-after-empty",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n0 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\nComparison unavailable: previous run: No observations: no requests"
+          },
+          {
+            "label": "p50 latency",
+            "value": "0 ms",
+            "text": "p50 latency\n0 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "p95 latency",
+            "value": "0 ms",
+            "text": "p95 latency\n0 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "p99 latency",
+            "value": "0 ms",
+            "text": "p99 latency\n0 ms\nComparison unavailable: previous run: No observations: no completed requests"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero-latency-repeated",
+      "summary": {
+        "requests": 4,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0,
+        "availability": 1,
+        "resolved_availability": 1,
+        "p50_ms": 0,
+        "p95_ms": 0,
+        "p99_ms": 0,
+        "background_jobs": 0,
+        "background_completed": 0,
+        "background_failed": 0,
+        "background_pending": 0,
+        "background_p95_ms": 0,
+        "experiment_cost": 0.00005555555555555556,
+        "monthly_cost": 73.00000000000001
+      },
+      "reading": {
+        "stage": "Simulated p95 service path latency\n0 ms\n\nA modeled outcome for this submitted workload.\n\nModel tds-des-1.0 · seed 42 · 2s · illustrative, not production accuracy",
+        "cards": [
+          {
+            "label": "Availability",
+            "value": "100%",
+            "text": "Availability\n100%\n+0 pp vs previous"
+          },
+          {
+            "label": "p50 latency",
+            "value": "0 ms",
+            "text": "p50 latency\n0 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "p95 latency",
+            "value": "0 ms",
+            "text": "p95 latency\n0 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "p99 latency",
+            "value": "0 ms",
+            "text": "p99 latency\n0 ms\n+0 ms vs previous"
+          },
+          {
+            "label": "Experiment cost",
+            "value": "$0.000056",
+            "text": "Experiment cost\n$0.000056\n+$0.00 vs previous"
+          },
+          {
+            "label": "Monthly estimate",
+            "value": "$73.00",
+            "text": "Monthly estimate\n$73.00\n+$0.00 vs previous"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Seeded synthetic workloads through the actual local engine, not production measurements.",
+    "Chromium only; no screen-reader audit."
+  ],
+  "status": "passed"
+}

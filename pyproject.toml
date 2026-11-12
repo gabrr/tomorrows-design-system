@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tomorrows-design-system"
+version = "0.4.0"
+description = "Local architecture simulation and an autonomous standalone-agent code factory"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
+
+[project.scripts]
+tomorrows-design-system = "tds.server:main"
+tds-factory = "factory.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tds*", "factory*"]
+
+[tool.setuptools.package-data]
+factory = ["result.schema.json"]

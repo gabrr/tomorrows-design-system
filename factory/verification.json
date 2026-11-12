@@ -1,0 +1,23 @@
+{
+  "live_codex_tested": false,
+  "platform": "Darwin",
+  "python": "3.14.6",
+  "result": "passed",
+  "schema_version": 1,
+  "sha256": {
+    "agents/roles.json": "e99334895e7dc065da0d5a0f4d1481450d8a2c51fabc6e747594adc89f3d1dab",
+    "factory/__init__.py": "2f20c41177255acc429cff90bd42ea28f67ab39e7c8b00f84b0fe4182245b078",
+    "factory/__main__.py": "7fc41cadd998840abadb9b39046bd1aae88fb6221e1326b9b3013dd625357677",
+    "factory/autopilot.py": "a3aad698d86f47cb0c811a9d467bf3d13721379690167ce976a670523bca493a",
+    "factory/core.py": "31c7139cbfc7caa99e3dd04ae4d32eecb84e06f0d173823574b853574decb25a",
+    "factory/mock_worker.py": "05c02382dff59001b5cf13f6ef9c4dc02ed757bb32494544b1b143622f91af12",
+    "factory/planner.py": "97a1ab461804fceb5fea6d638c01ce6e33e3783543d78ff2101b772b0f17f990",
+    "factory/process_gate.py": "a98d89fbda1a9ff7eb569da578bf25a0d74e66326ae2c67c7dca03396cdfadfb",
+    "factory/providers.py": "2c478b78b4b5766c022be4c6ef0c75c5b03ee14cd9cde668122b5544eb6029c3",
+    "factory/result.schema.json": "134146fc4a8a81ddfb4af460a140e7e147a8d191870e352b81890a9862b6fa5a",
+    "factory/verification.txt": "d8c607b0406005bd2cee34561eb89f9ae09cb7484915145a8eae996292d92f23",
+    "tests/test_factory.py": "d2eb0b824e528fcbd66b2d99b6ff99f67d5482f407f25aa2be5d23d07152378f"
+  },
+  "test_command": "python3 -m unittest discover -s tests -p test_factory.py -v",
+  "tests": 34
+}

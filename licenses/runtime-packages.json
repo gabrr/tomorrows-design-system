@@ -1,0 +1,101 @@
+[
+  {
+    "name": "@astryxdesign/core",
+    "version": "0.7.13",
+    "declared_license": "MIT",
+    "sources": [
+      "licenses/ASTRYX-LICENSE.txt"
+    ],
+    "license_sha256": "ec6762449ee182e6dde94b6142919999f500b3ebb8a2b2c70a2d4a3607825405"
+  },
+  {
+    "name": "@astryxdesign/theme-neutral",
+    "version": "0.7.13",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/@astryxdesign/theme-neutral/LICENSE"
+    ],
+    "license_sha256": "ec6762449ee182e6dde94b6142919999f500b3ebb8a2b2c70a2d4a3607825405"
+  },
+  {
+    "name": "@formatjs/fast-memoize",
+    "version": "3.1.7",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/@formatjs/fast-memoize/LICENSE.md"
+    ],
+    "license_sha256": "e632b7c5b70a3d48813d4b332d193f949921a07d59efee7f4c854370506a633b"
+  },
+  {
+    "name": "@formatjs/icu-messageformat-parser",
+    "version": "3.5.18",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/@formatjs/icu-messageformat-parser/LICENSE.md"
+    ],
+    "license_sha256": "e632b7c5b70a3d48813d4b332d193f949921a07d59efee7f4c854370506a633b"
+  },
+  {
+    "name": "@formatjs/icu-skeleton-parser",
+    "version": "2.1.11",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/@formatjs/icu-skeleton-parser/LICENSE.md"
+    ],
+    "license_sha256": "e632b7c5b70a3d48813d4b332d193f949921a07d59efee7f4c854370506a633b"
+  },
+  {
+    "name": "@stylexjs/stylex",
+    "version": "0.19.1",
+    "declared_license": "MIT",
+    "sources": [
+      "licenses/STYLEX-LICENSE.txt"
+    ],
+    "license_sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+  },
+  {
+    "name": "intl-messageformat",
+    "version": "11.2.15",
+    "declared_license": "BSD-3-Clause",
+    "sources": [
+      "node_modules/intl-messageformat/LICENSE.md"
+    ],
+    "license_sha256": "74ad53cfe5ea394ab661ff5b7b9962cc07cd8c653c6c277e365e49475f6bd7c3"
+  },
+  {
+    "name": "lucide-react",
+    "version": "1.72.0",
+    "declared_license": "ISC",
+    "sources": [
+      "node_modules/lucide-react/LICENSE"
+    ],
+    "license_sha256": "ee35498e6684b30c9efaae009415884772f4450b3f6a3ae49103cd550a2c8ceb"
+  },
+  {
+    "name": "react",
+    "version": "19.3.1",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/react/LICENSE"
+    ],
+    "license_sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+  },
+  {
+    "name": "react-dom",
+    "version": "19.3.1",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/react-dom/LICENSE"
+    ],
+    "license_sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+  },
+  {
+    "name": "scheduler",
+    "version": "0.28.0",
+    "declared_license": "MIT",
+    "sources": [
+      "node_modules/scheduler/LICENSE"
+    ],
+    "license_sha256": "cf9b17822d1fcd4ff32ccbe14183386fb3adf6f2ff92dc184130823f7fc28173"
+  }
+]

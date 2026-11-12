@@ -1,0 +1,205 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  min-width: 1100px;
+}
+body {
+  font-family: var(--font-family-body);
+  font-size: 14px;
+}
+.app-shell {
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-background-body);
+  color: var(--color-text-primary);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.spread {
+  justify-content: space-between;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.small-gap {
+  gap: 8px;
+}
+.two-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.dialog-content {
+  padding: 20px;
+  max-height: 72dvh;
+  overflow: auto;
+}
+.disclosure-content {
+  padding: 14px 0;
+}
+.data-grid {
+  /* This wrapper owns scrolling, so stop the parent Card/Dialog's edge bleed here. */
+  --container-padding-inline-start: 0px;
+  --container-padding-inline-end: 0px;
+  --container-padding-block-start: 0px;
+  --container-padding-block-end: 0px;
+  flex-shrink: 0;
+  overflow: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+.panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-scroll {
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  overscroll-behavior: contain;
+  padding: 2px;
+}
+.floating-panel {
+  position: fixed !important;
+  z-index: 16;
+  top: 96px;
+  bottom: 210px;
+  max-height: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+.library-panel {
+  left: 80px;
+  width: 296px;
+}
+.inspector-panel {
+  right: 18px;
+  width: 316px;
+}
+.experiment-panel {
+  left: 80px;
+  width: 480px;
+}
+.workspace-header {
+  position: fixed;
+  z-index: 20;
+  left: 18px;
+  right: 18px;
+  top: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  pointer-events: none;
+}
+.project-bar,
+.command-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+.project-bar {
+  max-width: 390px;
+}
+.project-name-field {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.project-name-field > span {
+  padding-left: 8px;
+}
+.tool-rail {
+  position: fixed !important;
+  z-index: 18;
+  left: 18px;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rail-separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 5px 3px;
+}
+.camera-toolbar {
+  position: fixed !important;
+  left: 18px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 14;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.notice-layer {
+  position: fixed;
+  z-index: 40;
+  right: 18px;
+  bottom: 92px;
+  max-width: 320px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.notice-layer > div {
+  min-width: 0;
+  flex: 1;
+}
+.model-caption {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  max-width: 180px;
+  text-align: right;
+  pointer-events: none;
+  z-index: 9;
+}
+.skip-link {
+  position: fixed !important;
+  left: 20px;
+  top: 8px;
+  z-index: 1000;
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+.results-panel {
+  padding-top: 4px;
+}
+.results-panel .data-grid {
+  max-height: 390px;
+}
+#root [hidden] {
+  display: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell * {
+    scroll-behavior: auto;
+  }
+}

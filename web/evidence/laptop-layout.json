@@ -1,0 +1,75 @@
+{
+  "base": "http://127.0.0.1:8899",
+  "readings": [
+    {
+      "phase": "results",
+      "viewport": {
+        "width": 1360,
+        "height": 768
+      },
+      "bounds": {
+        "play": {
+          "top": 709,
+          "bottom": 743,
+          "width": 32,
+          "height": 34
+        },
+        "scrub": {
+          "top": 709,
+          "bottom": 743,
+          "width": 236.828125,
+          "height": 34
+        },
+        "time": {
+          "top": 717.296875,
+          "bottom": 734.6875,
+          "width": 113.171875,
+          "height": 17.390625
+        },
+        "canvas": {
+          "top": 0,
+          "bottom": 768,
+          "width": 1360,
+          "height": 768
+        },
+        "height": 768,
+        "overflow": false
+      }
+    },
+    {
+      "phase": "results",
+      "viewport": {
+        "width": 1200,
+        "height": 764
+      },
+      "bounds": {
+        "play": {
+          "top": 705,
+          "bottom": 739,
+          "width": 32,
+          "height": 34
+        },
+        "scrub": {
+          "top": 705,
+          "bottom": 739,
+          "width": 236.828125,
+          "height": 34
+        },
+        "time": {
+          "top": 713.296875,
+          "bottom": 730.6875,
+          "width": 113.171875,
+          "height": 17.390625
+        },
+        "canvas": {
+          "top": 0,
+          "bottom": 764,
+          "width": 1200,
+          "height": 764
+        },
+        "height": 764,
+        "overflow": false
+      }
+    }
+  ]
+}

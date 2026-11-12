@@ -1,0 +1,74 @@
+name: Local application and factory checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      matrix:
+        python: ['3.11', '3.13']
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: python scripts/check.py
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - name: Install isolated browser test tooling
+        run: |
+          npm install --prefix "$RUNNER_TEMP/tds-browser" playwright@1.62.1
+          "$RUNNER_TEMP/tds-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify browser workflows against disposable local data
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/tds-browser/node_modules/playwright
+          TDS_DATA_DIR: ${{ runner.temp }}/tds-browser-data
+          TDS_UI_URL: http://127.0.0.1:8877
+        run: |
+          python3 -m tds --port 8877 > "$RUNNER_TEMP/tds-server.log" 2>&1 &
+          tds_server_pid=$!
+          trap 'kill "$tds_server_pid" 2>/dev/null || true' EXIT
+          python3 - <<'PY'
+          import time
+          from urllib.request import urlopen
+          for attempt in range(60):
+              try:
+                  with urlopen('http://127.0.0.1:8877/api/health', timeout=1) as response:
+                      assert response.status == 200
+                  break
+              except OSError:
+                  time.sleep(.5)
+          else:
+              raise SystemExit('Local browser test backend did not become ready')
+          PY
+          node web/tests/integrity.cjs
+          node web/tests/ui-verification.cjs
+          node web/tests/webmcp.cjs
+          node web/tests/sample-metrics.cjs
+          node web/tests/rate-provenance.cjs
+          node web/tests/price-display.cjs
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-verification
+          path: |
+            web/browser-check-evidence.txt
+            /tmp/tds-*.png
+            ${{ runner.temp }}/tds-server.log
