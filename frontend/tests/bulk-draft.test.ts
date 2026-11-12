@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { Workspace } from "../src/workspace/store";
 import type { Project } from "../src/domain/types";
+import { numericDraft } from "../src/domain/validation";
 Object.assign(globalThis, { window: { dispatchEvent: () => true } });
 const fixture = (): Project => ({
   id: "bulk",
@@ -199,4 +200,87 @@ test("new bulk scratch supersedes the previous success notice without hiding an 
   w.notify("Validation failed", true);
   w.editBulkDraft(["a", "b"], "capacity_rps", 230);
   assert.equal(w.get().notice?.text, "Validation failed");
+});
+
+test("numeric batch text preserves incomplete input across navigation and rejects ambiguous or out-of-range values", async () => {
+  const rule = { min: 0, max: 1000, integer: false };
+  assert.equal(numericDraft("180", rule).value, 180);
+  assert.equal(numericDraft(".5", rule).value, 0.5);
+  assert.equal(numericDraft("1.8e2", rule).value, 180);
+  for (const text of ["", "-", "1e", "1,80", "Infinity", "1001", "180oops"])
+    assert.equal(numericDraft(text, rule).value, undefined, text);
+  assert.equal(
+    numericDraft("1.5", { ...rule, integer: true }).value,
+    undefined,
+  );
+  const w = setup();
+  w.cancelBulkDraft();
+  w.set({
+    constraints: {
+      node_config: { capacity_rps: rule },
+      edge: {},
+      scenario: {},
+      monthly: {},
+    },
+  });
+  w.editBulkDraft(["a", "b"], "capacity_rps", undefined, "1e");
+  w.set({ panel: null });
+  w.recoverBulkDraft();
+  assert.equal(w.get().bulkDraft?.numericText, "1e");
+  await assert.rejects(w.applyBulkDraft(), /Enter a group property/);
+  assert.throws(() => w.apply(fixture(), w.fence()), /pending group edit/);
+  assert.deepEqual(
+    w.get().project.nodes.map((n) => n.config.capacity_rps),
+    [100, 200, 300],
+  );
+  assert.throws(
+    () => w.editBulkDraft(["a", "b"], "capacity_rps", 199, "180"),
+    /disagree/,
+  );
+  assert.equal(w.get().bulkDraft?.numericText, "1e");
+  w.editBulkDraft(["a", "b"], "capacity_rps", 180, "180");
+  assert.equal(w.get().bulkDraft?.value, 180);
+  assert.equal(w.get().bulkDraft?.numericText, "180");
+});
+
+test("a ready numeric text draft applies once without blur, and changed text fences validation even for equal numeric values", async () => {
+  const original = globalThis.fetch,
+    w = setup();
+  w.cancelBulkDraft();
+  w.set({
+    constraints: {
+      node_config: { capacity_rps: { min: 0, max: 1000, integer: false } },
+      edge: {},
+      scenario: {},
+      monthly: {},
+    },
+  });
+  w.editBulkDraft(["a", "b"], "capacity_rps", 180, "180");
+  let release!: (r: Response) => void;
+  globalThis.fetch = async () =>
+    new Promise((resolve) => {
+      release = resolve;
+    });
+  try {
+    const obsolete = w.applyBulkDraft();
+    w.editBulkDraft(["a", "b"], "capacity_rps", 180, "180.0");
+    release(response({ valid: true }));
+    await assert.rejects(obsolete, /draft changed/);
+    assert.equal(w.get().bulkDraft?.numericText, "180.0");
+    globalThis.fetch = async () => response({ valid: true });
+    await w.applyBulkDraft();
+    assert.deepEqual(
+      w.get().project.nodes.map((n) => n.config.capacity_rps),
+      [180, 180, 300],
+    );
+    assert.equal(w.get().bulkDraft, null);
+    w.undo();
+    assert.deepEqual(
+      w.get().project.nodes.map((n) => n.config.capacity_rps),
+      [100, 200, 300],
+    );
+    assert.equal(w.get().history.canUndo, false);
+  } finally {
+    globalThis.fetch = original;
+  }
 });

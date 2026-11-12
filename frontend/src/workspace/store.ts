@@ -1,5 +1,5 @@
 import { selectedNodeIds, connectionProblem } from "../domain/graph";
-import { validationMessage } from "../domain/validation";
+import { validationMessage, numericDraft } from "../domain/validation";
 import { useSyncExternalStore } from "react";
 import type {
   WorkspaceState,
@@ -107,7 +107,12 @@ export class Workspace {
       canonical(this.state.project.scenario.events);
   hasUnsavedWork = () =>
     this.state.dirty || this.hasScenarioChanges() || !!this.state.bulkDraft;
-  editBulkDraft = (ids: string[], field: string, value: Json | undefined) => {
+  editBulkDraft = (
+    ids: string[],
+    field: string,
+    value: Json | undefined,
+    numericText?: string,
+  ) => {
     const unique = [...new Set(ids)].sort();
     const draft = this.state.bulkDraft;
     if (
@@ -124,9 +129,32 @@ export class Workspace {
       (value !== undefined &&
         !["number", "string", "boolean"].includes(typeof value)) ||
       (typeof value === "number" && !Number.isFinite(value)) ||
-      (typeof value === "string" && value.length > 10000)
+      (typeof value === "string" && value.length > 10000) ||
+      (numericText !== undefined &&
+        (typeof numericText !== "string" ||
+          numericText.length > 1000 ||
+          (value !== undefined && typeof value !== "number")))
     )
       throw Error("Group draft exceeds supported bounds or value types.");
+    if (numericText !== undefined) {
+      if (
+        unique.some(
+          (id) =>
+            typeof this.state.project.nodes.find((n) => n.id === id)?.config[
+              field
+            ] !== "number",
+        )
+      )
+        throw Error("Choose a numeric property on every selected component.");
+      if (
+        !Object.is(
+          numericDraft(numericText, this.state.constraints?.node_config[field])
+            .value,
+          value,
+        )
+      )
+        throw Error("The numeric draft and displayed text disagree.");
+    }
     if (!draft) {
       for (const id of unique) {
         const node = this.state.project.nodes.find((n) => n.id === id);
@@ -151,6 +179,7 @@ export class Workspace {
         ids: unique,
         field,
         value,
+        ...(numericText !== undefined ? { numericText } : {}),
         fence: draft?.fence || this.fence(),
       },
       // A new pending edit supersedes an earlier success notice, but not an error.
@@ -173,6 +202,17 @@ export class Workspace {
     const draft = this.state.bulkDraft;
     if (!draft || draft.value === undefined)
       throw Error("Enter a group property value first.");
+    if (draft.numericText !== undefined) {
+      const parsed = numericDraft(
+        draft.numericText,
+        this.state.constraints?.node_config[draft.field],
+      );
+      if (parsed.error || !Object.is(parsed.value, draft.value))
+        throw Error(
+          parsed.error ||
+            "The numeric draft changed. Review the displayed value.",
+        );
+    }
     await this.validateAndPatchNodes(
       draft.ids,
       { [draft.field]: draft.value },

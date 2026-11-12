@@ -133,6 +133,7 @@ export interface WorkspaceState {
     ids: string[];
     field: string;
     value: Json | undefined;
+    numericText?: string;
     fence: Fence;
   } | null;
   camera: { x: number; y: number; zoom: number };

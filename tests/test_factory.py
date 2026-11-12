@@ -57,7 +57,10 @@ class FactoryTests(unittest.TestCase):
                       acceptance='a.txt contains accepted implementation',
                       checks=[[sys.executable, '-c', "from pathlib import Path; assert Path('a.txt').read_text() == 'accepted\\n'"]],
                       prompt='Implement a.txt with accepted content', provider_name='mock',
-                      mock={'files': {'a.txt': 'accepted\n'}}, lease_seconds=0.5, timeout=5)
+                      # Non-lease tests use Factory.add's production lease. A
+                      # 0.5s fixture lease can expire during Git/fsync preparation
+                      # before a worker heartbeat, changing the scenario tested.
+                      mock={'files': {'a.txt': 'accepted\n'}}, timeout=5)
         values.update(kwargs)
         return self.f.add(**values)
 
@@ -381,10 +384,38 @@ f.integrate('one')
 
     def test_unknown_process_identity_fails_closed(self):
         self.add(mock={'sleep': 30}, max_attempts=1)
-        with patch('factory.core.proc_identity', return_value=''):
+        pids = []
+        def unknown_identity(pid):
+            pids.append(pid)
+            return ''
+        with patch('factory.core.proc_identity', side_effect=unknown_identity):
             row = self.f.run_once('mock')
         self.assertEqual(row['state'], 'failed')
         self.assertIn('safe process identity', row['error'])
+        self.assertTrue(pids, 'The actual gated process must reach identity validation')
+        for pid in set(pids):
+            with self.assertRaises(ProcessLookupError):
+                os.kill(pid, 0)
+        self.assertFalse((self.f.home / 'attempts/one/1/result.json').exists())
+
+    def test_expired_preparation_lease_requires_recovery_without_running_provider(self):
+        self.add(max_attempts=1)
+        worktree = self.f.worktree
+        def expire_after_preparation(path, revision):
+            worktree(path, revision)
+            # Inject the same deadline crossing as a slow runner, without a sleep.
+            with self.f.transaction() as db:
+                db.execute("UPDATE tasks SET lease=0 WHERE id='one'")
+        with patch.object(self.f, 'worktree', side_effect=expire_after_preparation):
+            row = self.f.run_once('mock')
+        self.assertEqual(row['state'], 'running')
+        self.assertEqual(row['lease'], 0)
+        self.assertFalse(self.f.heartbeat('one', row['owner']))
+        self.assertFalse((self.f.home / 'attempts/one/1/result.json').exists())
+        self.assertEqual(self.f.recover()['recovered'], ['one'])
+        self.assertEqual(self.f.task('one')['state'], 'failed')
+        self.assertEqual(self.f.task('one')['error'], 'expired lease recovered')
+        self.assertEqual(self.f.recover()['recovered'], [])
 
     def test_killed_integration_supervisor_recovers_check_group(self):
         self.approved(checks=[[sys.executable, '-c',

@@ -1,5 +1,36 @@
-import type { Event, NumericConstraints, NumericScope, Project } from "./types";
+import type {
+  Event,
+  NumericConstraint,
+  NumericConstraints,
+  NumericScope,
+  Project,
+} from "./types";
 import { humanize } from "./evidence.js";
+
+/** An explicit batch form retains incomplete text without committing it to a node. */
+export function numericDraft(text: string, rule?: NumericConstraint) {
+  if (!rule)
+    return {
+      value: undefined,
+      error: "Field limits are unavailable. Reload the local app.",
+    };
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text.trim()))
+    return {
+      value: undefined,
+      error: "Enter a complete number using a decimal point.",
+    };
+  const value = Number(text);
+  if (!Number.isFinite(value))
+    return { value: undefined, error: "Enter a finite number." };
+  if (rule.integer && !Number.isInteger(value))
+    return { value: undefined, error: "Enter a whole number." };
+  if (value < rule.min || value > rule.max)
+    return {
+      value: undefined,
+      error: `Enter a value between ${rule.min.toLocaleString("en-US")} and ${rule.max.toLocaleString("en-US")}.`,
+    };
+  return { value, error: "" };
+}
 
 export function numericField(
   constraints: NumericConstraints | null,

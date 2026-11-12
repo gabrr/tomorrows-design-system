@@ -1,18 +1,10 @@
 import { useState } from "react";
 import { Copy, Trash2 } from "lucide-react";
-import {
-  Text,
-  Select,
-  Numeric,
-  Input,
-  Action,
-  Message,
-  Disclosure,
-} from "../../ui";
+import { Text, Select, Input, Action, Message, Disclosure } from "../../ui";
 import { workspace, useWorkspace } from "../../workspace/store";
 import { humanize } from "../../domain/evidence.js";
 import type { Json } from "../../domain/types";
-import { numericField } from "../../domain/validation";
+import { numericDraft } from "../../domain/validation";
 export function BulkInspector({ ids }: { ids: string[] }) {
   const s = useWorkspace(),
     nodes = s.project.nodes.filter((n) => ids.includes(n.id));
@@ -46,13 +38,13 @@ export function BulkInspector({ ids }: { ids: string[] }) {
     [busy, setBusy] = useState(false);
   const current = !pending || workspace.isCurrent(pending.fence),
     value = shared(field),
-    type =
-      pending && pending.value !== undefined
-        ? typeof pending.value
-        : typeof nodes[0]?.config[field];
-  const edit = (next: Json | undefined) => {
+    type = typeof nodes[0]?.config[field];
+  const numericText =
+    pending?.numericText ?? (draft === undefined ? "" : String(draft));
+  const numeric = numericDraft(numericText, s.constraints?.node_config[field]);
+  const edit = (next: Json | undefined, numericText?: string) => {
     try {
-      workspace.editBulkDraft(ids, field, next);
+      workspace.editBulkDraft(ids, field, next, numericText);
       setError("");
     } catch (e) {
       setError((e as Error).message);
@@ -92,13 +84,15 @@ export function BulkInspector({ ids }: { ids: string[] }) {
     <>
       <Text>{nodes.map((n) => n.label).join(", ")}</Text>
       <Text type="supporting">
-        Apply changes this property on all {nodes.length} components.
+        Edit this property across all {nodes.length} components.
       </Text>
-      {pending && (
-        <Text>
-          Pending {humanize(field)}: {String(pending.value ?? "Choose a value")}
+      <div style={{ minHeight: 24 }}>
+        <Text type="supporting">
+          {pending
+            ? `Pending ${humanize(field)}: ${pending.numericText ?? String(pending.value ?? "Choose a value")}`
+            : "Changes apply together when you choose Apply."}
         </Text>
-      )}
+      </div>
       {pending && !current && (
         <Message
           error
@@ -132,19 +126,28 @@ export function BulkInspector({ ids }: { ids: string[] }) {
             </Text>
           )}
           {type === "number" ? (
-            <Numeric
+            <Input
               label={label}
-              {...numericField(s.constraints, "node_config", field)}
-              value={typeof draft === "number" ? draft : null}
+              value={numericText}
               placeholder="Mixed values"
-              step={
-                ["concurrency", "queue_limit", "replicas"].includes(field)
-                  ? 1
-                  : 0.01
+              inputMode={
+                s.constraints?.node_config[field]?.integer
+                  ? "numeric"
+                  : "decimal"
               }
-              isWheelEnabled={false}
+              description="Use a decimal point for fractions. Apply updates the selected components."
               isDisabled={!current || !s.constraints?.node_config[field]}
-              onChange={edit}
+              status={
+                pending?.numericText !== undefined && numeric.error
+                  ? { type: "error", message: numeric.error }
+                  : undefined
+              }
+              onChange={(text) =>
+                edit(
+                  numericDraft(text, s.constraints?.node_config[field]).value,
+                  text,
+                )
+              }
             />
           ) : type === "boolean" ? (
             <Select
@@ -164,7 +167,7 @@ export function BulkInspector({ ids }: { ids: string[] }) {
               label={label}
               value={typeof draft === "string" ? draft : ""}
               placeholder={value === undefined ? "Mixed values" : ""}
-              onChange={edit}
+              onChange={(text) => edit(text)}
               isDisabled={!current}
             />
           )}
@@ -179,8 +182,10 @@ export function BulkInspector({ ids }: { ids: string[] }) {
                 !pending ||
                 !current ||
                 draft === undefined ||
-                s.gestureActive ||
-                (value !== undefined && Object.is(value, draft))
+                (type === "number" &&
+                  pending?.numericText !== undefined &&
+                  !!numeric.error) ||
+                s.gestureActive
               }
               action={async () => {
                 setBusy(true);

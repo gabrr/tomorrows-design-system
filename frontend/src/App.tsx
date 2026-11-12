@@ -48,7 +48,15 @@ export function App() {
       const state = workspace.get();
       if (
         e.defaultPrevented ||
-        document.querySelector("dialog[open],[role=listbox],[role=menu]")
+        [
+          ...document.querySelectorAll<HTMLElement>(
+            "dialog[open],[role=listbox],[role=menu]",
+          ),
+        ].some(
+          (overlay) =>
+            overlay.getClientRects().length > 0 &&
+            getComputedStyle(overlay).visibility !== "hidden",
+        )
       )
         return;
       const input = (e.target as HTMLElement).closest(

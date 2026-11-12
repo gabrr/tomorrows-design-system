@@ -29,27 +29,31 @@ const assert = require("node:assert/strict");
       proposal.nodes.find((n) => n.id === id).config.capacity_rps = 300;
     await field.fill(JSON.stringify(proposal));
     await button("Validate and review architecture").click();
-    await page
-      .getByRole("dialog", { name: "Review architecture changes", exact: true })
+    const review = page.getByRole("dialog", {
+      name: "Review architecture changes",
+      exact: true,
+    });
+    await review.waitFor();
+    // Native and AI reviews share the accessible Changes summary. Check the
+    // actual before/proposed values, not the removed implementation-specific list.
+    const summary = await review
+      .getByLabel("Proposed change summary", { exact: true })
+      .innerText();
+    assert.match(summary, /App A · Capacity: 100 req\/s → 300 req\/s/);
+    assert.match(summary, /App B · Capacity: 100 req\/s → 300 req\/s/);
+    await review
+      .getByRole("button", { name: /Complete before\/after diff/ })
       .waitFor();
-    assert.match(
-      await page
-        .getByRole("list", { name: "Reviewed architecture changes" })
-        .innerText(),
-      /App A/,
-    );
-    assert.match(
-      await page
-        .getByRole("list", { name: "Reviewed architecture changes" })
-        .innerText(),
-      /App B/,
-    );
     assert.equal(
       await page
         .locator('[data-node-id="app_a"]')
         .innerText()
         .then((t) => t.includes("Capacity 100/s")),
       true,
+    );
+    assert.match(
+      await page.locator('[data-node-id="app_b"]').innerText(),
+      /Capacity 100\/s/,
     );
     await button("Apply reviewed architecture").click();
     assert.match(
@@ -77,12 +81,14 @@ const assert = require("node:assert/strict");
     await page
       .getByRole("heading", { name: "2 components", exact: true })
       .waitFor();
-    const capacity = page.getByRole("spinbutton", {
-      name: "Capacity · requests / second",
+    const capacity = page.getByLabel("Capacity · requests / second", {
       exact: true,
     });
-    await capacity.fill("250");
-    await capacity.press("Tab");
+    // Keep focus in the raw draft: the first pointer click must apply, not
+    // merely blur/commit the field and move a previously disabled button.
+    await capacity.fill("");
+    await capacity.pressSequentially("250");
+    assert.equal(await button("Apply to 2 components").isEnabled(), true);
     await button("Apply to 2 components").click();
     await page.waitForFunction(() =>
       document
@@ -96,6 +102,44 @@ const assert = require("node:assert/strict");
     assert.match(
       await page.locator('[data-node-id="balancer"]').innerText(),
       /Capacity 100\/s/,
+    );
+    // Hidden/closed selector layers must not swallow the inspector's Escape.
+    // An invalid raw draft survives closing without changing either component.
+    const groupHeading = page.getByRole("heading", {
+      name: "2 components",
+      exact: true,
+    });
+    await capacity.fill("");
+    await capacity.pressSequentially("1e");
+    assert.equal(await capacity.inputValue(), "1e");
+    assert.equal(await button("Apply to 2 components").isEnabled(), false);
+    await capacity.press("Escape");
+    await groupHeading.waitFor({ state: "hidden" });
+    await button("Inspector").click();
+    await groupHeading.waitFor();
+    assert.equal(await capacity.inputValue(), "1e");
+    await page.getByText("Pending Capacity rps: 1e", { exact: true }).waitFor();
+    assert.equal(await button("Apply to 2 components").isEnabled(), false);
+    for (const id of ["app_a", "app_b"])
+      assert.match(await node(id).innerText(), /Capacity 250\/s/);
+    await button("Reset group edit").click();
+    assert.equal(await capacity.inputValue(), "250");
+    // A genuinely open popup owns the first Escape; only the second closes
+    // the inspector after the popup has finished dismissing.
+    await page
+      .getByRole("combobox", { name: "Shared property", exact: true })
+      .click();
+    await page.getByRole("listbox").waitFor();
+    await page.keyboard.press("Escape");
+    await page.getByRole("listbox").waitFor({ state: "hidden" });
+    assert.equal(await groupHeading.isVisible(), true);
+    await page.keyboard.press("Escape");
+    await groupHeading.waitFor({ state: "hidden" });
+    await button("Inspector").click();
+    await groupHeading.waitFor();
+    assert.equal(await capacity.inputValue(), "250");
+    console.log(
+      "PASS invalid raw draft Escape/recovery/reset and active popup Escape ownership",
     );
     await button("Duplicate selection").click();
     assert.equal(await page.locator("[data-node-id]").count(), 5);
