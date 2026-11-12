@@ -69,9 +69,9 @@ const assert = require("node:assert/strict");
       await page.locator('[data-node-id="app_b"]').innerText(),
       /Capacity 100\/s/,
     );
-    // Use the actual card buttons and controls, with one undo per group action.
-    const node = (id) =>
-      page.locator(`[data-node-id="${id}"]`).getByRole("button");
+    // Click the visible Astryx pressable card, not its hidden keyboard proxy.
+    // Keep native pointer dispatch and hit testing; do not force/bypass overlays.
+    const node = (id) => page.locator(`[data-node-id="${id}"]`);
     await node("app_a").click();
     await node("app_b").click({ modifiers: ["Shift"] });
     await page
