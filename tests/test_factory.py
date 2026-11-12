@@ -167,6 +167,125 @@ class FactoryTests(unittest.TestCase):
         self.assertIn(b'user edit preserved', patch_bytes)
         self.assertEqual((self.root / '.git/index').read_bytes(), index_before)
 
+    def assert_snapshot_refactor(self, to_directory):
+        from factory.core import git as real_git
+        names = ['config', 'odd\nname', ':(glob)*']
+        old, new = set(), set()
+        for name in names:
+            path = self.root / name
+            if to_directory:
+                path.write_text('old file')
+                old.add(name)
+            else:
+                path.mkdir()
+                (path / 'default.json').write_text('old child')
+                old.add(name + '/default.json')
+        self.git('--literal-pathspecs', 'add', '--', *names)
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@localhost', 'commit', '-qm', 'tracked refactor baseline')
+        revision = self.git('rev-parse', 'HEAD').decode().strip()
+        for name in names:
+            path = self.root / name
+            if to_directory:
+                path.unlink()
+                path.mkdir()
+                for child in ['default.json', '-child']:
+                    (path / child).write_text('new child ' + name)
+                    new.add(name + '/' + child)
+            else:
+                (path / 'default.json').unlink()
+                path.rmdir()
+                path.write_text('replacement file ' + name)
+                new.add(name)
+        main_index = (self.root / '.git/index').read_bytes()
+        with patch('factory.core.git', wraps=real_git) as calls:
+            patch_bytes, changed = self.snapshot()
+        self.assertEqual(set(changed), old | new)
+        removes = [c for c in calls.call_args_list if c.args[1] == 'update-index']
+        self.assertEqual(len(removes), 1)
+        self.assertEqual(set(removes[0].kwargs['input'].split(b'\0')[:-1]), {n.encode() for n in old})
+        adds = [c for c in calls.call_args_list if 'add' in c.args[1:]]
+        self.assertEqual(len(adds), 1)
+        add_names = {n.decode() for n in adds[0].kwargs['input'].split(b'\0')[:-1]}
+        self.assertTrue(new <= add_names)
+        self.assertTrue(old.isdisjoint(add_names))
+        self.assertTrue(all((self.root / n).is_file() for n in add_names))
+        # Independent Git oracle is confined to this disposable fixture.
+        env = {**os.environ, 'GIT_INDEX_FILE': str(self.f.home / 'oracle.index')}
+        real_git(self.root, 'read-tree', revision, env=env)
+        real_git(self.root, 'add', '-A', '--', '.', env=env)
+        expected_tree = real_git(self.root, 'write-tree', env=env)
+        env['GIT_INDEX_FILE'] = str(self.f.home / 'test-input.index')
+        self.assertEqual(real_git(self.root, 'write-tree', env=env), expected_tree)
+        rebuilt = self.f.home / 'rebuilt'
+        self.git('worktree', 'add', '--detach', str(rebuilt), revision)
+        real_git(rebuilt, 'apply', '--binary', '-', input=patch_bytes)
+        regular_files = lambda directory: {
+            n.relative_to(directory).as_posix(): n.read_bytes()
+            for n in directory.rglob('*') if n.is_file()
+            and not any(part in ('.git', '.factory') for part in n.relative_to(directory).parts)
+        }
+        self.assertEqual(regular_files(rebuilt), regular_files(self.root))
+        self.assertEqual((self.root / '.git/index').read_bytes(), main_index)
+
+    def test_snapshot_tracked_file_to_directory_roundtrip_and_literal_deletions(self):
+        self.assert_snapshot_refactor(True)
+
+    def test_snapshot_tracked_directory_to_file_roundtrip_and_literal_deletions(self):
+        self.assert_snapshot_refactor(False)
+
+    def test_snapshot_refactor_late_child_is_not_recursively_staged(self):
+        from factory.core import git as real_git
+        path = self.root / 'config'
+        path.write_text('tracked file')
+        self.git('add', '--', 'config')
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@localhost', 'commit', '-qm', 'refactor baseline')
+        path.unlink()
+        path.mkdir()
+        (path / 'admitted.txt').write_text('admitted child')
+        main_index = (self.root / '.git/index').read_bytes()
+        def racing_git(root, *args, **kwargs):
+            if 'add' in args:
+                names = kwargs['input'].split(b'\0')
+                self.assertNotIn(b'config', names)
+                self.assertIn(b'config/admitted.txt', names)
+                (path / 'late.txt').write_text('must not be swept')
+            return real_git(root, *args, **kwargs)
+        with patch('factory.core.git', side_effect=racing_git):
+            with self.assertRaisesRegex(FactoryError, 'changed during staging'):
+                self.snapshot()
+        env = {**os.environ, 'GIT_INDEX_FILE': str(self.f.home / 'test-input.index')}
+        staged = real_git(self.root, 'ls-files', '-z', env=env).split(b'\0')
+        self.assertNotIn(b'config/late.txt', staged)
+        self.assertNotIn(b'config', staged)
+        self.assertIn(b'config/admitted.txt', staged)
+        self.assertEqual((self.root / '.git/index').read_bytes(), main_index)
+
+    def test_snapshot_refactor_still_rejects_special_replacements_before_add(self):
+        from factory.core import git as real_git
+        path = self.root / 'config'
+        path.write_text('tracked file')
+        self.git('add', '--', 'config')
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@localhost', 'commit', '-qm', 'refactor baseline')
+        path.unlink()
+        for kind in ['nested', 'symlink', 'fifo']:
+            with self.subTest(kind=kind):
+                if kind == 'nested':
+                    subprocess.check_call(['git', 'init', '-q', str(path)])
+                elif kind == 'symlink':
+                    path.symlink_to('existing.txt')
+                else:
+                    os.mkfifo(path)
+                before = self.git('count-objects', '-v')
+                with patch('factory.core.git', wraps=real_git) as calls:
+                    with self.assertRaises(FactoryError):
+                        self.snapshot()
+                self.assertFalse(any('add' in c.args[1:] for c in calls.call_args_list))
+                self.assertEqual(self.git('count-objects', '-v'), before)
+                if kind == 'nested':
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+
     def test_prompt_compacts_hashes_but_retains_complete_context_and_artifact(self):
         self.add()
         task = self.f.claim('mock')

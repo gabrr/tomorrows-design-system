@@ -400,36 +400,64 @@ class Factory:
     def worktree(self, path, revision):
         git(self.root, 'worktree', 'add', '--detach', str(path), revision)
 
-    def snapshot_inputs(self, workspace, env, admitted=()):
-        """Metadata-only accident guard; never hash or stage candidate payloads."""
-        names = set(admitted)
+    def snapshot_inputs(self, workspace, env, admitted=(), tracked=None):
+        """Plan regular leaves and tracked deletions without hashing/staging blobs."""
+        indexed = set()
         for entry in git(workspace, 'ls-files', '--stage', '-z', env=env).split(b'\0'):
             if not entry:
                 continue
             mode, name = entry.split(b'\t', 1)
             if mode.split(b' ', 1)[0] not in (b'100644', b'100755'):
                 raise FactoryError('Snapshot rejects symlinks and submodules before staging')
-            names.add(name.decode('utf-8'))
+            indexed.add(name.decode('utf-8'))
+        # Preserve the seed revision's tracked membership after index deletions.
+        tracked = indexed if tracked is None else set(tracked)
+        names = set(admitted) | tracked | indexed
         names.update(n.decode('utf-8').rstrip('/') for n in git(
             workspace, 'ls-files', '--others', '--exclude-standard', '-z', env=env).split(b'\0') if n)
         if len(names) > MAX_SNAPSHOT_FILES:
             raise FactoryError(f'Snapshot file-count budget exceeded: {len(names)} > {MAX_SNAPSHOT_FILES}')
-        metadata = {}
+        files, deletions = {}, {}
         total = 0
+        def identity(info):
+            return (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+                    info.st_mtime_ns, info.st_ctime_ns)
         for name in sorted(names):
             relative_path(name)
             path = Path(workspace) / name
-            # A replaced parent must not let lstat follow a symlink out of root.
+            blocked = None
+            # Walk top-down: never follow symlinks or mistake special ancestors
+            # for a legitimate directory-to-file replacement.
             for parent in reversed(path.relative_to(workspace).parents):
                 if parent == Path('.'):
                     continue
                 ancestor = Path(workspace) / parent
-                if ancestor.is_symlink() or (ancestor / '.git').exists():
-                    raise FactoryError('Snapshot rejects symlink/nested repository: ' + name[:200])
+                try:
+                    info = ancestor.lstat()
+                except FileNotFoundError:
+                    break
+                if stat.S_ISDIR(info.st_mode):
+                    if (ancestor / '.git').exists() or (ancestor / '.git').is_symlink():
+                        raise FactoryError('Snapshot rejects nested repository: ' + name[:200])
+                elif stat.S_ISREG(info.st_mode) and name in tracked:
+                    blocked = (str(parent), identity(info))
+                    break
+                else:
+                    raise FactoryError('Snapshot rejects symlink or special ancestor: ' + name[:200])
+            if blocked is not None:
+                deletions[name] = ('blocked-parent', blocked)
+                continue
             try:
                 info = path.lstat()
-            except FileNotFoundError:
-                metadata[name] = None  # Tracked deletion remains in the admitted plan.
+            except (FileNotFoundError, NotADirectoryError):
+                if name not in tracked:
+                    raise FactoryError('Snapshot input disappeared: ' + name[:200])
+                deletions[name] = None
+                continue
+            if stat.S_ISDIR(info.st_mode) and name in tracked:
+                if (path / '.git').exists() or (path / '.git').is_symlink():
+                    raise FactoryError('Snapshot rejects nested repository: ' + name[:200])
+                deletions[name] = ('directory', identity(info))
                 continue
             if not stat.S_ISREG(info.st_mode):
                 raise FactoryError('Snapshot rejects nested repository or special file: ' + name[:200])
@@ -438,23 +466,27 @@ class Factory:
             total += info.st_size
             if total > MAX_SNAPSHOT_BYTES:
                 raise FactoryError(f'Snapshot total byte budget exceeded: {total} > {MAX_SNAPSHOT_BYTES}; at {name[:200]}')
-            metadata[name] = (info.st_dev, info.st_ino, info.st_mode, info.st_size,
-                              info.st_mtime_ns, info.st_ctime_ns)
-        return metadata
+            files[name] = identity(info)
+        return {'files': files, 'deletions': deletions, 'tracked': sorted(tracked)}
 
     def snapshot_patch(self, workspace, revision, index_path):
         env = os.environ.copy()
         env['GIT_INDEX_FILE'] = str(index_path)
         git(workspace, 'read-tree', revision, env=env)
-        admitted = self.snapshot_inputs(workspace, env)
-        if self.snapshot_inputs(workspace, env, admitted) != admitted:
+        plan = self.snapshot_inputs(workspace, env)
+        admitted = set(plan['files']) | set(plan['deletions'])
+        if self.snapshot_inputs(workspace, env, admitted, plan['tracked']) != plan:
             raise FactoryError('Snapshot inputs changed before staging; retry explicitly')
-        if admitted:
-            # Literal, NUL-delimited paths handle spaces, newlines and pathspec syntax.
-            paths = b''.join(name.encode('utf-8') + b'\0' for name in admitted)
+        if plan['deletions']:
+            # --force-remove names index entries; it never recursively stages a
+            # tracked file's replacement directory. -z makes stdin paths literal.
+            paths = b''.join(name.encode('utf-8') + b'\0' for name in plan['deletions'])
+            git(workspace, 'update-index', '--force-remove', '-z', '--stdin', env=env, input=paths)
+        if plan['files']:
+            paths = b''.join(name.encode('utf-8') + b'\0' for name in plan['files'])
             git(workspace, '--literal-pathspecs', 'add', '-A', '--pathspec-from-file=-',
                 '--pathspec-file-nul', env=env, input=paths)
-        if self.snapshot_inputs(workspace, env, admitted) != admitted:
+        if self.snapshot_inputs(workspace, env, admitted, plan['tracked']) != plan:
             raise FactoryError('Snapshot inputs changed during staging; retry explicitly')
         # Retain the post-staging mode check as defense in depth.
         for entry in git(workspace, 'ls-files', '--stage', '-z', env=env).split(b'\0'):
