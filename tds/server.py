@@ -164,7 +164,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.respond(run_simulation(body))
                 if path == '/api/ai/generate':
                     from .ai import generate
-                    errors = validate(body.get('project', {}))
+                    from .simulation import validate_ai_context
+                    errors = validate_ai_context(body.get('project', {}))
                     if errors:
                         raise ValueError('; '.join(errors[:8]))
                     return self.respond(generate(body.get('prompt'), body['project'], body.get('provider', 'codex')))

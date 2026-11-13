@@ -53,6 +53,33 @@ def validation_constraints():
             "monthly": rules(_MONTHLY_NUMBERS)}
 
 
+def validation_config_guidance():
+    """Read-only field vocabulary and units alongside the public numeric rules."""
+    return {
+        "allowed_keys": sorted(_CONFIG_KEYS),
+        "numeric_units": {
+            "capacity_rps": "requests/second", "latency_ms": "milliseconds",
+            "concurrency": "requests", "queue_limit": "requests", "replicas": "count",
+            "hourly_cost": "USD/hour", "health_check_delay": "seconds",
+            "cache_hit_rate": "fraction", "latency_jitter": "fraction", "ingress_weight": "relative weight",
+            "cost_per_request": "USD/request", "request_cost_per_million": "USD/million requests",
+            "input_tokens": "tokens/request", "output_tokens": "tokens/request",
+            "input_cost_per_million": "USD/million input tokens", "output_cost_per_million": "USD/million output tokens",
+            "egress_bytes": "bytes/request", "egress_cost_per_gb": "USD/decimal GB",
+        },
+        "non_numeric_rules": {
+            "routing": {"enum": ["all", "weighted"]},
+            "initial_state": {"enum": ["up", "down"]},
+            "async_dispatch": {"type": "boolean"},
+            **{key: {"type": "string", "max_length": 1000}
+               for key in ("provider", "region", "model", "instance_class")},
+            **{key: {"type": "descriptive string or object", "max_serialized_length": 16000,
+                     "max_depth": 6, "nested_string_max_length": 4000, "collection_max_items": 100}
+               for key in ("pricing_provenance", "calibration")},
+        },
+    }
+
+
 def _number(value, low, high, integer=False):
     return (isinstance(value, (int, float)) and not isinstance(value, bool)
             and low <= value <= high and math.isfinite(value)
@@ -104,7 +131,27 @@ def _topology(nodes, edges):
     return outgoing, roots, ordered
 
 
+def validate_ai_context(project):
+    """Accept the complete blank editor shell only as AI construction context."""
+    if not isinstance(project, dict) or project.get("nodes") != []:
+        return validate(project)
+    if set(project) != {"id", "name", "nodes", "edges", "scenario", "monthly"}:
+        return ["blank AI context requires id, name, nodes, edges, scenario and monthly only"]
+    scenario, monthly = project["scenario"], project["monthly"]
+    if (project["edges"] != [] or not isinstance(scenario, dict)
+            or set(scenario) != {"duration", "rps", "seed", "events"}
+            or scenario["events"] != [] or not isinstance(monthly, dict)
+            or set(monthly) != {"hours", "traffic_multiplier"}):
+        return ["blank AI context requires empty edges/events and complete scenario/monthly settings"]
+    return _validate(project, allow_blank=True)
+
+
 def validate(project):
+    """Return actionable errors for a complete, simulatable project, without mutation."""
+    return _validate(project)
+
+
+def _validate(project, allow_blank=False):
     """Return actionable errors without mutating the supplied project.
 
     Unknown behavioral fields are rejected, including retries and cycles: their
@@ -118,7 +165,7 @@ def validate(project):
     if "name" in project and (not isinstance(project["name"], str) or len(project["name"]) > 1000):
         errors.append("project.name must be a string (max 1000)")
     nodes, edges = project.get("nodes"), project.get("edges", [])
-    if not isinstance(nodes, list) or not 1 <= len(nodes) <= 100:
+    if not isinstance(nodes, list) or not (0 if allow_blank else 1) <= len(nodes) <= 100:
         return ["nodes must contain 1..100 components"]
     if not isinstance(edges, list) or len(edges) > 300:
         return ["edges must be a list with at most 300 edges"]
@@ -290,7 +337,7 @@ def validate(project):
     arrivals = math.ceil(duration * max(rates)) + len(events) + 1
     if arrivals > MAX_REQUESTS:
         errors.append(f"workload budget exceeded: at most {MAX_REQUESTS} potential arrivals per run")
-    if max(visits.values()) > 2048 or arrivals * max(visits[root] for root in roots) > MAX_VISITS:
+    if max(visits.values(), default=0) > 2048 or arrivals * max((visits[root] for root in roots), default=0) > MAX_VISITS:
         errors.append(f"topology/workload expansion exceeds the {MAX_VISITS} node-visit budget")
     if (math.ceil(duration) + 1) * (len(nodes) + len(edges)) > 100_000:
         errors.append("metrics frame budget exceeded (100000 node/edge samples)")

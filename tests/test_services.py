@@ -98,6 +98,111 @@ class HTTPTests(unittest.TestCase):
             self.assertEqual(self.request('/api/simulate', body, {'Content-Type': 'application/json'})[0], 400)
     def test_invalid_architecture(self):
         self.assertEqual(self.request('/api/simulate', b'{}', {'Content-Type': 'application/json'})[0], 400)
+    def blank_ai_context(self):
+        return {'id': 'new-architecture', 'name': 'Untitled architecture',
+                'nodes': [], 'edges': [],
+                'scenario': {'duration': 60, 'rps': 20, 'seed': 42, 'events': []},
+                'monthly': {'hours': 730, 'traffic_multiplier': 1}}
+
+    def ai_request(self, project, **kwargs):
+        payload = {'prompt': 'Construct a complete architecture.', 'project': project, 'provider': 'codex', **kwargs}
+        return self.request('/api/ai/generate', json.dumps(payload).encode(), {'Content-Type': 'application/json'})
+
+    def test_ai_constructs_from_blank_without_mutating_context(self):
+        from tds.catalog import presets
+        blank = self.blank_ai_context()
+        complete = copy.deepcopy(presets()[0])
+        complete['id'] = blank['id']
+        result = {'proposal': complete, 'explanation': 'Illustrative construction', 'warnings': []}
+        for context in [blank, complete]:
+            with self.subTest(blank=not context['nodes']):
+                original = copy.deepcopy(context)
+                with patch.object(ai.PROVIDERS['codex'], 'generate', return_value=result) as adapter:
+                    status, body, _ = self.ai_request(context)
+                    self.assertEqual(status, 200, body)
+                    self.assertEqual(json.loads(body), result)
+                    adapter.assert_called_once_with('Construct a complete architecture.', original)
+                self.assertEqual(context, original)
+
+    def test_ai_rejects_malformed_and_oversized_contexts_before_adapter(self):
+        from tds.catalog import presets
+        blank = self.blank_ai_context()
+        invalid = [None, [], {}, {**blank, 'id': None}, {**blank, 'id': ''},
+                   {**blank, 'name': 'x' * 1001}, {**blank, 'nodes': None},
+                   {**blank, 'nodes': {}}, {**blank, 'edges': [{}]},
+                   {**blank, 'scenario': {}}, {**blank, 'monthly': {}},
+                   {**blank, 'extra': 'not editor context'},
+                   {k: v for k, v in blank.items() if k != 'id'}]
+        for field, value in [('duration', 0), ('duration', 3601), ('rps', -1),
+                             ('rps', 20001), ('seed', 1.5), ('seed', True),
+                             ('events', [{}]), ('unsupported', 1)]:
+            invalid.append({**blank, 'scenario': {**blank['scenario'], field: value}})
+        invalid.append({**blank, 'scenario': {**blank['scenario'], 'duration': 3600, 'rps': 20000}})
+        invalid.append({**blank, 'monthly': {**blank['monthly'], 'hours': 8785}})
+        invalid.append({**blank, 'monthly': {**blank['monthly'], 'traffic_multiplier': -1}})
+        invalid.append({**blank, 'monthly': {**blank['monthly'], 'unknown': 1}})
+        nonempty = copy.deepcopy(presets()[0])
+        nonempty['nodes'][0]['type'] = 'unsupported'
+        invalid.extend([nonempty, {**blank, 'nodes': [{}] * 101}])
+        with patch.object(ai.PROVIDERS['codex'], 'generate') as adapter:
+            for context in invalid:
+                with self.subTest(context=context):
+                    status, body, _ = self.ai_request(context)
+                    self.assertEqual(status, 400, body)
+                    self.assertIn('error', json.loads(body))
+            # The shared HTTP body budget still rejects before parsing/generation.
+            status, body, _ = self.request('/api/ai/generate', b'{}',
+                {'Content-Type': 'application/json', 'Content-Length': str(2 * 1024 * 1024 + 1)})
+            self.assertEqual(status, 400, body)
+            adapter.assert_not_called()
+
+    def test_ai_blank_input_does_not_admit_bad_or_changed_id_proposals(self):
+        from tds.catalog import presets
+        blank = self.blank_ai_context()
+        wrong_id = copy.deepcopy(presets()[0])
+        wrong_id['id'] = 'different-project'
+        invalid = copy.deepcopy(wrong_id)
+        invalid['id'] = blank['id']
+        invalid['nodes'][0]['config']['capacity_rps'] = -1
+        for proposal in [{}, blank, invalid, wrong_id]:
+            with self.subTest(proposal=proposal):
+                with patch.object(ai.PROVIDERS['codex'], 'generate', return_value={
+                    'proposal': proposal, 'explanation': 'Not accepted', 'warnings': []}) as adapter:
+                    status, body, _ = self.ai_request(blank)
+                    self.assertEqual(status, 400, body)
+                    self.assertIn('AI proposal', json.loads(body)['error'])
+                    adapter.assert_called_once()
+        self.assertFalse(ai.LOCK.locked())
+
+    def test_ai_blank_context_preserves_prompt_provider_and_busy_fences(self):
+        with patch.object(ai.PROVIDERS['codex'], 'generate') as adapter:
+            for options in [{'prompt': ''}, {'prompt': 'x' * 10001}, {'provider': 'unknown'}]:
+                status, body, _ = self.ai_request(self.blank_ai_context(), **options)
+                self.assertEqual(status, 400, body)
+            ai.LOCK.acquire()
+            try:
+                status, body, _ = self.ai_request(self.blank_ai_context())
+                self.assertEqual(status, 400, body)
+                self.assertIn('Another AI proposal', json.loads(body)['error'])
+            finally:
+                ai.LOCK.release()
+            adapter.assert_not_called()
+
+    def test_blank_context_still_rejected_outside_ai_construction(self):
+        blank = self.blank_ai_context()
+        body = json.dumps(blank).encode()
+        headers = {'Content-Type': 'application/json'}
+        status, response, _ = self.request('/api/validate', body, headers)
+        self.assertEqual(status, 200)
+        self.assertFalse(json.loads(response)['valid'])
+        self.assertEqual(self.request('/api/simulate', body, headers)[0], 400)
+        with patch('tds.server.save_project') as save:
+            self.assertEqual(self.request('/api/projects/' + blank['id'], body, headers, 'PUT')[0], 400)
+            save.assert_not_called()
+        for path in ['/api/calibration', '/api/pricing/apply']:
+            status, _, _ = self.request(path, json.dumps({'project': blank}).encode(), headers)
+            self.assertEqual(status, 400)
+
     def test_presets_run_and_persist_evidence(self):
         from tds.catalog import presets
         import tds.server as server_module
