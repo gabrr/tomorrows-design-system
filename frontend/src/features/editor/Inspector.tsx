@@ -35,6 +35,7 @@ function ConfigValue({
       {
         capacity_rps: "Capacity · requests / second",
         latency_ms: "Service latency · ms",
+        health_check_delay: "Health check delay · seconds",
         hourly_cost: "Hourly price · USD",
         concurrency: "Concurrent requests",
         queue_limit: "Queue limit",

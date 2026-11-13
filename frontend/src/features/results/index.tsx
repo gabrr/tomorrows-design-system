@@ -68,7 +68,13 @@ export function ResultsPanel() {
         <Message text={"Baseline: " + s.baseline.evidence_origin} />
       )}{" "}
       {!fresh && (
-        <Message text="Architecture changed. Results belong to the submitted earlier revision; run again for current graph telemetry." />
+        <Message
+          text={
+            run.evidence_origin
+              ? "Unverified retained results. Rerun locally for current graph telemetry."
+              : "Architecture changed. Results belong to the submitted earlier revision; run again for current graph telemetry."
+          }
+        />
       )}
       <Text type="supporting">
         Model {run.model_version} · seed {run.seed} · {run.duration}s ·
