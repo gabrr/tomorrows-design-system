@@ -203,3 +203,8 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* The hosted edition keeps AI entry points out of the manual workflow. */
+.browser-guide { position: absolute; z-index: 8; bottom: 36px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 160px); display: flex; gap: 16px; align-items: center; box-shadow: 0 8px 32px #00000012; }
+.browser-guide strong { display: block; margin-bottom: 4px; }
+.browser-guide-actions { display: flex; align-items: center; gap: 8px; }

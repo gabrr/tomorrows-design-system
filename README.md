@@ -8,7 +8,7 @@ A local visual workspace for exploring system design, resilience and cost.
 
 [![Status: early development](https://img.shields.io/badge/status-early_development-e8d6a7?style=flat-square&labelColor=252525)](#project-status) [![Runs locally](https://img.shields.io/badge/runs-locally-e8e8e5?style=flat-square&labelColor=252525)](#quick-start) [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-e8e8e5?style=flat-square&labelColor=252525)](#quick-start) [![License: MIT](https://img.shields.io/badge/license-MIT-e8e8e5?style=flat-square&labelColor=252525)](LICENSE)
 
-[Quick start](#quick-start) · [What you can explore](#what-you-can-explore) · [Example](#watch-a-server-fail) · [Documentation](#documentation) · [Contributing](CONTRIBUTING.md)
+[Open the app ↗](https://tomorrows-lab.netlify.app/) · [Quick start](#quick-start) · [What you can explore](#what-you-can-explore) · [Example](#watch-a-server-fail) · [Documentation](#documentation) · [Contributing](CONTRIBUTING.md)
 
 <img src="docs/images/workspace-light.png" alt="Tomorrow’s Design System showing a failed App A and all 20 requests per second routed from the load balancer to App B at simulated second 25." width="1280" />
 
@@ -49,6 +49,8 @@ The canvas now shows arrivals per simulated second on components and routed call
 Proposal reviews put concrete setting changes before the affected-item inventory and Apply controls. Factory snapshots now enforce fixed input budgets before staging and keep the full audit hash manifest out of the model prompt while retaining it locally. See the [0.4.1 release notes](docs/RELEASE-0.4.1.md) for behavior, verification and limits.
 
 ## Quick start
+
+**[Try it in your browser](https://tomorrows-lab.netlify.app/)** — build architectures, configure scenarios, run the same Python simulator, replay traffic and compare costs without installing anything or using AI. Designs and retained runs are stored on your device in this browser; export JSON for a portable backup. The first experiment loads a bundled WebAssembly Python runtime. Browser experiments use explicitly configured rates; AI proposals, live pricing refresh and the development factory require the local edition below. [Browser edition and deployment](docs/BROWSER-EDITION.md).
 
 Requires **Python 3.11+** and a desktop browser, with a target viewport of at least 1100px wide. Prebuilt UI assets are included; Node.js is only needed for frontend development.
 

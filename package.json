@@ -6,7 +6,9 @@
     "build": "node scripts/build-ui.mjs",
     "typecheck": "tsc --noEmit",
     "astryx": "node node_modules/@astryxdesign/cli/clients/cli/bin/astryx.mjs",
-    "check:ui": "node scripts/check-ui.mjs"
+    "check:ui": "node scripts/check-ui.mjs",
+    "build:hosted": "node scripts/build-hosted.mjs",
+    "test:hosted": "node --test hosted/browser.test.mjs"
   },
   "dependencies": {
     "@astryxdesign/core": "0.7.13",
@@ -21,7 +23,9 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "esbuild": "0.28.2",
-    "typescript": "^5.9.0",
-    "prettier": "3.6.2"
+    "fake-indexeddb": "6.2.8",
+    "prettier": "3.6.2",
+    "pyodide": "314.0.8",
+    "typescript": "^5.9.0"
   }
 }

@@ -1,3 +1,4 @@
+import { browserHosted } from "../../services/runtime";
 import { agentStatus } from "../../automation/status";
 import { useRef, useState, useSyncExternalStore } from "react";
 import {
@@ -116,7 +117,7 @@ export function WorkspaceChrome() {
             <Text type="supporting">
               {workspace.hasUnsavedWork()
                 ? "Unsaved local changes"
-                : "Local workspace"}
+                : (browserHosted ? "Browser workspace" : "Local workspace")}
               {activity
                 ? activity.ok
                   ? " · Agent activity"

@@ -1,0 +1,7 @@
+[build]
+  command = "npm ci --ignore-scripts && npm run build:hosted"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PYTHON_VERSION = "3.12"

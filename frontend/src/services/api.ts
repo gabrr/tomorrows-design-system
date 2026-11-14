@@ -1,7 +1,13 @@
+import { browserHosted } from "./runtime";
+
 export async function api<T = any>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  if (browserHosted) {
+    const { browserRequest } = await import("./browser");
+    return browserRequest(path, options) as Promise<T>;
+  }
   const response = await fetch(path, {
     ...options,
     headers: { "Content-Type": "application/json", ...options.headers },

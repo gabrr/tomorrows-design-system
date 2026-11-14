@@ -20,6 +20,8 @@ import {
   ScenarioPanel,
   Playback,
 } from "./features/editor";
+import { browserHosted } from "./services/runtime";
+import { BrowserGuide } from "./features/layout/browser-guide";
 import { AIWorkspace } from "./features/ai";
 import { UtilityDialogs } from "./features/utilities";
 import { ResultsPanel } from "./features/results";
@@ -175,7 +177,7 @@ export function App() {
             </div>
           </Card>
         )}
-        <AIWorkspace />
+        {browserHosted ? (!s.run && <BrowserGuide />) : <AIWorkspace />}
         <Playback />
         {s.notice && (
           <aside className="notice-layer">

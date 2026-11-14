@@ -1,3 +1,4 @@
+import { browserHosted } from "../../services/runtime";
 import { saveCurrent } from "./review-logic";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../services/api";
@@ -74,7 +75,7 @@ export function Projects() {
   }
   return (
     <div className="utility-stack">
-      <Message text="Projects are stored by the local backend on this machine. Export JSON for a portable copy." />
+      <Message text={browserHosted ? "Projects are saved in this browser on this device. Clearing site data removes them. Export JSON for a portable backup." : "Projects are stored by the local backend on this machine. Export JSON for a portable copy."} />
       <div className="utility-actions">
         <Action
           label="New project"

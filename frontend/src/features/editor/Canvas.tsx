@@ -1,3 +1,4 @@
+import { browserHosted } from "../../services/runtime";
 import { useEffect, useRef, useState, useCallback, useId } from "react";
 import type {
   PointerEvent as RPointerEvent,
@@ -897,7 +898,7 @@ export function Canvas() {
             Build a system. See what happens.
           </Text>
           <Text>
-            Describe an architecture below, or add components from the library.
+            {browserHosted ? "Choose a preset below, or add and connect components from the library." : "Describe an architecture below, or add components from the library."}
           </Text>
         </div>
       )}
